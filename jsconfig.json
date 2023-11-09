@@ -1,7 +1,13 @@
+
 {
+
+
   "compilerOptions": {
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "allowJs": true,
+    "target": "es2015"
+    
   }
 }
