@@ -53,7 +53,16 @@ const Faq = () => {
 
     ];
 
+    useEffect(() => {
+        
+       
+            
+          
+            fetchLangData();
 
+            
+         
+      },[] );
 
 
     const clearFilter1 = () => {
@@ -78,11 +87,11 @@ const Faq = () => {
                
                 
                 </div>
-                <div className="mb-2">
+                {/* <div className="mb-2">
                           <label >Dil </label>
                             <Dropdown id="actiontype" value={dropdownItemLang} onChange={(e) => {
                                 onLangChange(e.value)}} options={dropdownItemsLang} optionLabel="name" placeholder="Seçiniz"></Dropdown>
-                          </div>
+                          </div> */}
                 
             </div>
         );
@@ -91,7 +100,7 @@ const Faq = () => {
         setDropdownItemLang(e);
        fetchLangData(e.code);
     };
-    const fetchLangData = async (code) => {
+    const fetchLangData = async () => {
      
     setLoading1(true);
     
@@ -99,7 +108,7 @@ const Faq = () => {
     user.getIdToken().then(function(idToken) {  
        token =  idToken;
     }).then(()=>{
-    ContactUsService.getfaq(code,token).then((object) => {
+    ContactUsService.getfaq("tr",token).then((object) => {
         // console.log(object);
          if(object.succes){
             setFaq(object.data);
@@ -185,10 +194,9 @@ const Faq = () => {
                         setQuestion("");
                         setAnswer("");
                         setLoadingadd(false);
-                        if(dropdownItemLang != null){
-                            fetchLangData(dropdownItemLang.code);
+                            fetchLangData();
 
-                        }
+                        
     
         
                         }else{
@@ -288,7 +296,7 @@ const Faq = () => {
      const deleteTemplate = (rowData) => {
                 
         return   <div>
-            <Button label="Sil" icon="pi pi-trash" severity="danger" onClick={() => setFaqId(rowData.id)} />
+            <Button label="Sil" icon="pi pi-trash" severity="danger" onClick={() => setdelete(rowData.id)} />
                         <Dialog header="Silme İşlemi Onayı" visible={deletedialog} onHide={() => setDeleteDialog(false)} style={{ width: '350px' }} modal footer={confirmationDialogFooter}>
                             <div className="flex align-items-center justify-content-center">
                                 <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
@@ -307,7 +315,7 @@ const Faq = () => {
     );
     const setdelete = (event) => {
         setDeleteDialog(true);
-        settypeid(event);
+        setFaqId(event);
     
     
     } 
@@ -318,14 +326,14 @@ const Faq = () => {
         user.getIdToken().then(function(idToken) {  
            token =  idToken;
         }).then(()=>{
-        fetch(`${baseUrl}/faq?id=${encodeURIComponent(typeid)}`, {
+        fetch(`${baseUrl}/faq?id=${encodeURIComponent(faqid)}`, {
             method: "DELETE",    
         headers: { 'Cache-Control': 'no-cache', "Authorization": `Bearer ${token}` } })
                 .then((res) => res.json())
                 .then(data => {
                     console.log(data);
                     if(data.succes){
-                    fetchLangData(dropdownItemLang.code);
+                    fetchLangData();
     
                     }else{
                    showalerterror(data);
@@ -493,11 +501,11 @@ var xx =  formatingDate(value);
 
                         </div>
                     <div className="p-fluid formgrid grid">
-                    <div className="field col-12 md:col-6">
+                    {/* <div className="field col-12 md:col-6">
                             <label >Dil Kodu</label>
                             <Dropdown id="actiontype" value={dropdownItemLang2} onChange={(e) => {
                                 setDropdownItemLang2(e.value)}} options={dropdownItemsLang} optionLabel="name" placeholder="Seçiniz"></Dropdown>
-                        </div>
+                        </div> */}
                         <div className="field col-12 md:col-12">
                             <label >Soru</label>
                             <InputText  value={question} id="question" type="text" onChange={(e)=> setQuestion(e.target.value)}/>

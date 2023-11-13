@@ -628,7 +628,7 @@ var xx =  formatingDate(value);
                 <div className="card">
                 <div className="grid formgrid">
                         <div className="col-12 mb-2 lg:col-4 lg:mb-0">
-                            <h5>Sigorta Şirketi Ekle</h5>
+                            <h5>Sigorta Poliçesi Oluştur</h5>
                         </div>
                        
 

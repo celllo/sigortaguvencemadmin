@@ -413,8 +413,8 @@ const addproposal= async () => {
 
 
     body = JSON.stringify({
-        "requestId": id,
-      
+       "requestId": id,
+       "point" : point,
        "price": price,
        "note": adminnote, 
        "brandId": dropdownItemBrand.id, 

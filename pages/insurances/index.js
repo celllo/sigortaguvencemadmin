@@ -49,6 +49,7 @@ const Insurances = () => {
     const [errorvisible, seterrorvisible] = useState(false);
     const [error, seterror] = useState(null);
     const [dropdownItemInsuranceType, setDropdownItemInsuranceType] = useState(null);
+    const [dropdownItemInsuranceStatus, setdropdownItemInsuranceStatus] = useState( { name: 'Aktif', code: 'active' });
 
     const dropdownItemsInsuranceTypes = [
         { name: 'Aktif', code: 'active' },
@@ -63,7 +64,7 @@ const Insurances = () => {
     ];
     const clearFilter1 = () => {
         setGlobalFilterValue1("");
-        getinsurances(0,"");
+        getinsurances(0,"",dropdownItemInsuranceStatus.code);
         
      };
  
@@ -71,7 +72,7 @@ const Insurances = () => {
          const value = e.target.value;
         
          setGlobalFilterValue1(value);
-         getinsurances(page,value);
+         getinsurances(page,value,dropdownItemInsuranceStatus.code);
      };
 
      const changePage = (newPage) => {
@@ -84,13 +85,18 @@ const Insurances = () => {
 
         }
         setPage(parseInt(newPage));
-        getinsurances(newPage,globalFilterValue1);
+        getinsurances(newPage,globalFilterValue1,dropdownItemInsuranceStatus.code);
        }
 
     const renderHeader1 = () => {
         return (
             <div className="flex justify-content-between">
                 <Button type="button" icon="pi pi-filter-slash" label="Temizle" outlined onClick={clearFilter1} />
+                 <div className="mb-2">
+                          <label >Sigorta Türü </label>
+                            <Dropdown id="actiontype" value={dropdownItemInsuranceStatus} onChange={(e) => {
+                                onTypeChange(e.value)}} options={dropdownItemsInsuranceTypes} optionLabel="name" placeholder="Seçiniz"></Dropdown>
+                          </div>
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue1} onChange={onGlobalFilterChange1} placeholder="Sigorta Sahibi TC" />
@@ -101,14 +107,14 @@ const Insurances = () => {
   
 
 
-       const getinsurances = async (page,value) => {
+       const getinsurances = async (page,value,status) => {
        
         setLoading(true);
         var token = "";
         user.getIdToken().then(function(idToken) {  
            token =  idToken;
         }).then(()=>{
-           const url = `${baseUrl}/insurance?identity=${encodeURIComponent(value)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}`;
+           const url = `${baseUrl}/insurance?identity=${encodeURIComponent(value)}&status=${encodeURIComponent(status)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}`;
    
            BaseService.get(url,token).then((object) => {
            //console.log(object);
@@ -167,14 +173,17 @@ const Insurances = () => {
 
        
         
-        getinsurances(0,globalFilterValue1);
+        getinsurances(0,globalFilterValue1,dropdownItemInsuranceStatus.code);
         
 
        
 
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-
+    const onTypeChange = (e) => {
+        setdropdownItemInsuranceStatus(e);
+        getinsurances(0,globalFilterValue1,e.code);
+    };
      /// is checked 
      const switchTemplate = (rowData) => {
        

@@ -1101,10 +1101,7 @@ const renderHeader1 = () => {
              <span>
                  {brand && brand[0].name} Mağazası Şirket Bilgileri
                 </span>
-             <Button style={{margin: "5px"}}  type="button"  label="Stok Ekle"  onClick={() => {
-                    
-                    cleandata();
-                }}  />
+           
                
            
         </div>

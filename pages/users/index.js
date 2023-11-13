@@ -324,7 +324,11 @@ var xx =  formatingDate(value);
     const dateBodyTemplate = (rowData) => {
         return formatDate(rowData.createdAt);
     };
+    const birthdateBodyTemplate = (rowData) => {
+        return formatDate(rowData.birthDate);
+    };
    
+    
 
     const dateFilterTemplate = (options) => {
         return <Calendar value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" mask="99/99/9999" />;
@@ -493,8 +497,11 @@ var xx =  formatingDate(value);
                         <Column field="surname" header="Soyismi"  style={{ minWidth: '12rem' }} />
                         <Column field="email" header="Mail"  style={{ minWidth: '12rem' }} />  
                         <Column field="telephone" header="Telefon"  style={{ minWidth: '12rem' }} />
+                        <Column header="Doğum Tarihi"  style={{ minWidth: '10rem' }} body={birthdateBodyTemplate}  />
+
                         <Column field="id" header="Cinsiyet"  body={genderType} />
-                        <Column header="Oluşturulma Tarihi" filterField="date" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate}  />
+                        
+                        <Column header="Oluşturulma Tarihi"  style={{ minWidth: '10rem' }} body={dateBodyTemplate}  />
                         <Column field="id" header="Durumu"  body={userTypeTemplate} />
                         <Column field="id" header="Durumu Güncelle"  body={updateusertypetemplate} />
                         
