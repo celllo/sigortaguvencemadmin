@@ -401,9 +401,9 @@ const createinsurance = async (pdf) => {
          if(object.succes){
                    
          
-
+            
                    
-            setLoading2(false);
+            addpoint();
             
     
             
@@ -430,6 +430,13 @@ const createinsurance = async (pdf) => {
      });
         
         });
+        
+     
+  
+      }
+
+      const addpoint = async () => {
+       
         var body2 = {};
         if(leadingcheckboxpoint){
            
@@ -477,13 +484,7 @@ const createinsurance = async (pdf) => {
         console.log(object);
       
          if(object.succes){
-            if(leadingcheckbox){
-                sendNotif(dropdownItemUserPoint.tc);
-
-            }else{
-                sendNotif(dropdownItemUser.tc);
-
-            }
+           
             setidentityNumberPoint("");
             setidentityNumber("");
             setAmount("");
@@ -518,8 +519,6 @@ const createinsurance = async (pdf) => {
      });
         
         });
-     
-  
       }
 
 

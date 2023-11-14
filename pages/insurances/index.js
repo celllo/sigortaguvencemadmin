@@ -211,7 +211,7 @@ const Insurances = () => {
             }).then(()=>{
                 BaseService.get(url,token).then((data) => {
                 if(data.succes){
-                getinsurances(0,"");
+                getinsurances(0,globalFilterValue1,dropdownItemInsuranceStatus.code);
 
                 }else{
                 showalert(data);
@@ -377,7 +377,7 @@ var xx =  formatingDate(value);
                         setDropdownItemInsuranceType(null);
 
     
-                        getinsurances(page,globalFilterValue1);
+                        getinsurances(page,globalFilterValue1,dropdownItemInsuranceStatus.code);
                         
                         }else{
                             showalert({
