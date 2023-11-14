@@ -554,7 +554,7 @@ var xx =  formatingDate(value);
 
                     <Column field="point" header="Teklif Puanı"  ></Column>
 
-                    <Column field="note" header="Admin Notu" ></Column>
+                    <Column field="note" header="Bildirim Notu" ></Column>
                     <Column header="Bitiş Tarihi" dataType="date" style={{ minWidth: '10rem' }} body={dateEndBodyTemplate} />
 
 <Column header="Oluşturulma Tarihi"  dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate} />

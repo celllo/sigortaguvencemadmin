@@ -853,7 +853,7 @@ var xx =  formatingDate(value);
                     </div>
                    
                         <div className="field col-12 md:col-6">
-                            <label htmlFor="adminnote">Admin Notu</label>
+                            <label htmlFor="adminnote">Bildirim Notu</label>
                             <InputText value={adminnote} id="adminnote" type="text"onChange={(e)=> setAdminNote(e.target.value)} />
                         </div>
                       
@@ -911,7 +911,7 @@ var xx =  formatingDate(value);
                         <Column field="id" header="Durumu Güncelle" style={{ minWidth: '12rem' }} body={updateproposaltypetemplate} />
 
                         
-                        <Column field="note" header="Admin Notu" style={{ minWidth: '12rem' }} />
+                        <Column field="note" header="Bildirim Notu" style={{ minWidth: '12rem' }} />
 
                         <Column header="Teklif Son Tarihi" filterField="createdAt" dataType="date" style={{ minWidth: '10rem' }} body={dateEndBodyTemplate}  />
                         <Column header="Oluşturulma Tarihi" filterField="createdAt" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate}  />
