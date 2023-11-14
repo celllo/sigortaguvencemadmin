@@ -9,6 +9,7 @@ import { Dialog } from 'primereact/dialog';
 import { CircularProgress, Alert } from '@mui/material';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { InputSwitch } from 'primereact/inputswitch';
+import { BaseService } from '@/service/BaseService';
 
 import { Dropdown } from 'primereact/dropdown';
 
@@ -145,16 +146,7 @@ const Faq = () => {
       }
 
       const addFaq = async () => {
-        if(dropdownItemLang2 == null){
-            showaddalerterror(
-               {
-                    "succes" : false,
-                    "error" : "Lütfen Dil Seçiniz",
-                    
-                } 
-            );
-            return;
-        }
+       
         if(question == null || question == ""){
             showaddalerterror(
                {
@@ -185,7 +177,7 @@ const Faq = () => {
              body: JSON.stringify({
                 "question" : question,
                 "answer" : answer,
-                "code" : dropdownItemLang2.code
+                "code" : "tr"
             } ),    
             headers: { 'Cache-Control': 'no-cache','Content-Type': 'application/json' , "Authorization": `Bearer ${token}` } })
             .then((res) => res.json())
@@ -323,20 +315,29 @@ const Faq = () => {
         setDeleteDialog(false);
         setLoading1(true);
         var token = "";
+        var token = "";
+        const url = `${baseUrl}/faq`;
+        var deletelist = [];
+        deletelist.push(faqid);
+        var body = {};
+         body  = JSON.stringify({
+           id : deletelist
+                  
+               } )
         user.getIdToken().then(function(idToken) {  
            token =  idToken;
         }).then(()=>{
-        fetch(`${baseUrl}/faq?id=${encodeURIComponent(faqid)}`, {
-            method: "DELETE",    
-        headers: { 'Cache-Control': 'no-cache', "Authorization": `Bearer ${token}` } })
-                .then((res) => res.json())
-                .then(data => {
+            BaseService.deletewithbody(url,body,token).then((data) => {
                     console.log(data);
                     if(data.succes){
                     fetchLangData();
     
                     }else{
-                   showalerterror(data);
+                        showalerterror({
+                            "succes" : false,
+                            "error" : data.message.toString()
+                            
+                        });
                    setLoading1(false);
     
     

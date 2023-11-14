@@ -410,6 +410,36 @@ const addproposal= async () => {
     setLoading2(true);
     var body = {};
 
+    if(adminnote == null || adminnote == ""){
+        body = JSON.stringify({
+            "requestId": id,
+            "point" : point,
+            "price": price,
+            "brandId": dropdownItemBrand.id, 
+            "endDate": "2023-10-22",
+            "proposedtoId": request.createdUser.id,
+            "serviceId": request.serviceId,
+            
+            
+                   
+                   
+                } )
+    }else{
+        body = JSON.stringify({
+            "requestId": id,
+            "point" : point,
+            "price": price,
+            "note": adminnote, 
+            "brandId": dropdownItemBrand.id, 
+            "endDate": "2023-10-22",
+            "proposedtoId": request.createdUser.id,
+            "serviceId": request.serviceId,
+            
+            
+                   
+                   
+                } )
+    }
 
 
     body = JSON.stringify({
@@ -820,6 +850,8 @@ var xx =  formatingDate(value);
                         <div className="col-12 mb-2 lg:col-4 lg:mb-0">
                             <h5>Teklif Ekle</h5>
                         </div>
+
+                       
                        
 
                       
@@ -855,6 +887,10 @@ var xx =  formatingDate(value);
                         <div className="field col-12 md:col-6">
                             <label htmlFor="adminnote">Bildirim Notu</label>
                             <InputText value={adminnote} id="adminnote" type="text"onChange={(e)=> setAdminNote(e.target.value)} />
+                        </div>
+
+                        <div className="field col-12 md:col-12">
+                            <span>Bildirim notu eklendiği zaman kullanıcıya bildirim olarak not alanındaki içerik gönderilir. Boş bırakıldığında ise otomatik teklif oluşturuldu bildirimi gönderilir.</span>
                         </div>
                       
                          
