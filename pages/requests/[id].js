@@ -40,6 +40,8 @@ const Request = () => {
     const [request, setRequest] = useState();
     const [service, setService] = useState();
     const [serviceuser, setServiceuser] = useState();
+    const [creteduser, setCreateduser] = useState();
+
 
 
     const [answers, setAnswers] = useState([]);
@@ -126,11 +128,13 @@ const Request = () => {
         const url = `${baseUrl}/request/${encodeURIComponent(id)}`;
 
         BaseService.get(url,token).then((object) => {
-        //console.log(object);
+       console.log(object.data);
          if(object.succes){
             setRequest(object.data);
             setService(object.data.service);
-            setServiceuser(object.data.user);
+            setServiceuser(object.data.userCreatedFor);
+            setCreateduser(object.data.createdUser);
+
             setProposals(object.data.proposals);
             setAnswers(object.data.requestanswer.answers);
 
@@ -410,7 +414,6 @@ const addproposal= async () => {
     setLoading2(true);
     var body = {};
 
-    if(adminnote == null || adminnote == ""){
         body = JSON.stringify({
             "requestId": id,
             "point" : point,
@@ -424,38 +427,10 @@ const addproposal= async () => {
                    
                    
                 } )
-    }else{
-        body = JSON.stringify({
-            "requestId": id,
-            "point" : point,
-            "price": price,
-            "note": adminnote, 
-            "brandId": dropdownItemBrand.id, 
-            "endDate": "2023-10-22",
-            "proposedtoId": request.createdUser.id,
-            "serviceId": request.serviceId,
-            
-            
-                   
-                   
-                } )
-    }
 
 
-    body = JSON.stringify({
-       "requestId": id,
-       "point" : point,
-       "price": price,
-       "note": adminnote, 
-       "brandId": dropdownItemBrand.id, 
-       "endDate": "2023-10-22",
-       "proposedtoId": request.createdUser.id,
-       "serviceId": request.serviceId,
-       
-       
-              
-              
-           } )
+
+   
 
   
        
@@ -474,7 +449,6 @@ const addproposal= async () => {
                    
                     setPrice("");
                     setPoint("");
-                    setAdminNote("");
 
                     getrequest();
                     setLoading2(false);
@@ -654,6 +628,120 @@ var xx =  formatingDate(value);
             
             });
       }
+
+      const updaterequesttype = async () => {
+       
+       
+        setLoading2(true);
+        var token = "";
+        var body = {};
+        body = JSON.stringify({
+            "status" : "accepted",
+            "id" : id,
+            "from_admin" : true
+
+            
+        } );
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+            const url = `${baseUrl}/request`;
+            BaseService.put(url,body,token).then((data) => {
+                    if(data.succes){
+                        sendNotif();
+    
+                        }else{
+                            showalert({
+                            "succes" : false,
+                            "error" : data.message
+                            
+                        });
+                        setLoading2(false);
+
+    
+        
+                        }
+                
+                }) // Manipulate the data retrieved back, if we want to do something with it
+                .catch(message => { 
+                    setLoading2(false);
+    
+                    
+                    showalert({
+                        "succes" : false,
+                        "error" : message.toString()
+                        
+                    });
+    
+                }) ; 
+            
+            });
+      }
+
+      const sendNotif = async () => {
+       
+        var body = {};
+        if(adminnote == null || adminnote ==""){
+            body = JSON.stringify({
+                "body" : "Teklif Detaylarınıza Geçmiş Sigorta Sorgularım bölümünden ulaşabilirsiniz.",
+    "title": "Teklifiniz Oluşturuldu",
+    "topic" : creteduser.identityNumber
+            } );
+        }else{
+
+            body = JSON.stringify({
+                "body" : adminnote,
+    "title": "Teklifiniz Oluşturuldu",
+    "topic" : creteduser.identityNumber
+            } );
+
+        }
+
+       
+           
+        
+        
+        var token = "";
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+        fetch(`${baseUrl}/notifs`, {
+            method: "POST",
+             body: body,   
+            headers: { 'Cache-Control': 'no-cache','Content-Type': 'application/json', "Authorization": `Bearer ${token}` } })
+            .then((res) => res.json())
+                .then(data => {
+                    if(data.succes){
+                                               setLoading2(false);
+
+                        setAdminNote("");
+
+        
+                        }else{
+                            setLoading2(false);
+
+                            showalert({
+                                "succes" : false,
+                                "error" : "Bildirim Gönderilemedi",
+                                
+                            } );
+
+    
+        
+                        }
+                
+                }) // Manipulate the data retrieved back, if we want to do something with it
+                .catch(message => { 
+                    setLoading2(false);
+
+                    showalert({
+                        "succes" : false,
+                        "error" : "Bildirim Gönderilemedi",
+                        
+                    } );
+    
+                }) ; });
+      }
    
    
    
@@ -795,9 +883,17 @@ var xx =  formatingDate(value);
 
 <div className="col-12">
 <div className="card">
+{serviceuser &&  <h5>Teklif Sahibi</h5>   }
+
       
-{serviceuser &&  <h5>TC: {serviceuser.identityNumber && serviceuser.phone}</h5> }
-{serviceuser &&  <h5>Telefon: {serviceuser.identityNumber && serviceuser.phone}</h5> }
+{serviceuser &&  <span>TC: {serviceuser.identityNumber && serviceuser.identityNumber}</span> }
+{serviceuser &&  <span> Telefon: {serviceuser.identityNumber && serviceuser.telephone}</span> }
+
+{creteduser && <h5>Teklif Oluşturan</h5>   }
+
+{creteduser &&  <span>TC: {creteduser.identityNumber && creteduser.identityNumber} </span> }
+
+{creteduser &&  <span> Telefon: {creteduser.identityNumber && creteduser.telephone}</span> }
 
 {service &&  <h5>{service.name && service.name} Teklif İsteği</h5> }
 
@@ -883,7 +979,22 @@ var xx =  formatingDate(value);
                     <label htmlFor="name">Kazanılacak Puan</label>
                     <InputNumber value={point} onValueChange={(e) => setPoint(e.value)} mode="decimal" minFractionDigits={2}></InputNumber>
                     </div>
+                    <div className="field col-12 md:col-4"> 
+
+</div>
+<div className="field col-12 md:col-4"> 
+
+</div>
+                        
+<div className="field col-12 md:col-4"> 
+<Button type="button"  label="Ekle" outlined onClick={() =>addproposal()} />
+</div>
                    
+
+
+                    <div className="col-12 mb-2 lg:col-4 lg:mb-0">
+                            <h5>Teklif Oluşturuldu Bildirimi Gönder</h5>
+                        </div>
                         <div className="field col-12 md:col-6">
                             <label htmlFor="adminnote">Bildirim Notu</label>
                             <InputText value={adminnote} id="adminnote" type="text"onChange={(e)=> setAdminNote(e.target.value)} />
@@ -912,7 +1023,7 @@ var xx =  formatingDate(value);
 </div>
                         
 <div className="field col-12 md:col-4"> 
-<Button type="button"  label="Ekle" outlined onClick={() =>addproposal()} />
+<Button type="button"  label="Gönder" outlined onClick={() =>updaterequesttype()} />
 </div>
 
 
@@ -947,7 +1058,7 @@ var xx =  formatingDate(value);
                         <Column field="id" header="Durumu Güncelle" style={{ minWidth: '12rem' }} body={updateproposaltypetemplate} />
 
                         
-                        <Column field="note" header="Bildirim Notu" style={{ minWidth: '12rem' }} />
+                        {/* <Column field="note" header="Bildirim Notu" style={{ minWidth: '12rem' }} /> */}
 
                         <Column header="Teklif Son Tarihi" filterField="createdAt" dataType="date" style={{ minWidth: '10rem' }} body={dateEndBodyTemplate}  />
                         <Column header="Oluşturulma Tarihi" filterField="createdAt" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate}  />

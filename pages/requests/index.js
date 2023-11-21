@@ -605,7 +605,7 @@ var xx =  formatingDate(value);
                         <Column field="id" header="Sigorta Türü"  body={serviceTypeBodyTemplate} />
                         <Column field="id" header="Teklif Durumu"  body={statusTypeBodyTemplate} />
                         <Column field="id" header="Durumu Güncelle"  body={updaterequesttypetemplate} />
-                        <Column field="id" header="Teklif Oluşturuldu Bildirimi Gönder"  body={notifTemplate} />
+                        {/* <Column field="id" header="Teklif Oluşturuldu Bildirimi Gönder"  body={notifTemplate} /> */}
 
                         
                     
