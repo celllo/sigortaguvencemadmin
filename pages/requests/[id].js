@@ -885,15 +885,19 @@ var xx =  formatingDate(value);
 <div className="card">
 {serviceuser &&  <h5>Teklif Sahibi</h5>   }
 
-      
-{serviceuser &&  <span>TC: {serviceuser.identityNumber && serviceuser.identityNumber}</span> }
-{serviceuser &&  <span> Telefon: {serviceuser.identityNumber && serviceuser.telephone}</span> }
+{serviceuser &&  <span> {serviceuser.name && serviceuser.name}</span> }
+{serviceuser &&  <span>  {serviceuser.surname && serviceuser.surname}</span> }
+
+{serviceuser &&  <span> TC: {serviceuser.identityNumber && serviceuser.identityNumber}</span> }
+{serviceuser &&  <span> Telefon: {serviceuser.telephone && serviceuser.telephone}</span> }
 
 {creteduser && <h5>Teklif Oluşturan</h5>   }
+{creteduser &&  <span> {creteduser.name && creteduser.name}</span> }
+{creteduser &&  <span>  {creteduser.surname && creteduser.surname}</span> }
 
-{creteduser &&  <span>TC: {creteduser.identityNumber && creteduser.identityNumber} </span> }
+{creteduser &&  <span> TC: {creteduser.identityNumber && creteduser.identityNumber} </span> }
 
-{creteduser &&  <span> Telefon: {creteduser.identityNumber && creteduser.telephone}</span> }
+{creteduser &&  <span> Telefon: {creteduser.telephone && creteduser.telephone}</span> }
 
 {service &&  <h5>{service.name && service.name} Teklif İsteği</h5> }
 
