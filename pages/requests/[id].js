@@ -186,7 +186,7 @@ const Request = () => {
                 setLoading(false);
        
                 }else{
-                   showalertbranderror(object);
+                    showalert(object);
                     setLoading(false);
        
        
@@ -196,7 +196,7 @@ const Request = () => {
         }).catch((message) => {
            setLoading(false);
    
-           showalertbranderror({
+           showalert({
                "succes" : false,
                "error" : message.toString()
                
@@ -680,7 +680,7 @@ var xx =  formatingDate(value);
       const sendNotif = async () => {
        
         var body = {};
-        if(adminnote == null || adminnote ==""){
+        if(adminnote == null || adminnote == ""){
             body = JSON.stringify({
                 "body" : "Teklif Detaylarınıza Geçmiş Sigorta Sorgularım bölümünden ulaşabilirsiniz.",
     "title": "Teklifiniz Oluşturuldu",
@@ -695,6 +695,7 @@ var xx =  formatingDate(value);
             } );
 
         }
+        //console.log(body);
 
        
            
@@ -995,7 +996,7 @@ var xx =  formatingDate(value);
                    
 
 
-                    <div className="col-12 mb-2 lg:col-4 lg:mb-0">
+                    <div className="col-12 mb-2 lg:col-12 lg:mb-0">
                             <h5>Teklif Oluşturuldu Bildirimi Gönder</h5>
                         </div>
                         <div className="field col-12 md:col-6">
