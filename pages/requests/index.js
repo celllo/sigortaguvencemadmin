@@ -38,6 +38,8 @@ const Services = () => {
     const [request, setRequest] = useState([]);
     const [loading, setLoading] = useState(true);
     const [expandedRows, setExpandedRows] = useState(null);
+    const [dropdownItemRequestStatus, setdropdownItemRequestStatus] = useState(  { name: 'İncelemede', code: 'inreview' },
+    );
 
 
     const dropdownItemsRequestTypes = [
@@ -69,7 +71,7 @@ const Services = () => {
 
     const clearFilter1 = () => {
         setGlobalFilterValue1("");
-        getrequests(0,"");
+        getrequests(0,"",dropdownItemRequestStatus.code);
         
      };
  
@@ -77,7 +79,7 @@ const Services = () => {
          const value = e.target.value;
         
          setGlobalFilterValue1(value);
-         getrequests(page,value);
+         getrequests(page,value,dropdownItemRequestStatus.code);
      };
 
      const changePage = (newPage) => {
@@ -90,7 +92,7 @@ const Services = () => {
 
         }
         setPage(parseInt(newPage));
-        getrequests(newPage,globalFilterValue1);
+        getrequests(newPage,globalFilterValue1,dropdownItemRequestStatus.code);
        }
 
        
@@ -99,6 +101,11 @@ const Services = () => {
         return (
             <div className="flex justify-content-between">
                 <Button type="button" icon="pi pi-filter-slash" label="Temizle" outlined onClick={clearFilter1} />
+                <div className="mb-2">
+                          <label >İstek Türü </label>
+                            <Dropdown id="actiontype" value={dropdownItemRequestStatus} onChange={(e) => {
+                                onTypeChange(e.value)}} options={dropdownItemsRequestTypes} optionLabel="name" placeholder="Seçiniz"></Dropdown>
+                          </div>
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue1} onChange={onGlobalFilterChange1} placeholder="Sigorta Sahibi TC" />
@@ -106,14 +113,18 @@ const Services = () => {
             </div>
         );
     };
-    const getrequests = async (page,value) => {
+    const onTypeChange = (e) => {
+        setdropdownItemRequestStatus(e);
+        getrequests(0,globalFilterValue1,e.code);
+    };
+    const getrequests = async (page,value,status) => {
        
      setLoading(true);
      var token = "";
      user.getIdToken().then(function(idToken) {  
         token =  idToken;
      }).then(()=>{
-        const url = `${baseUrl}/request?identity=${encodeURIComponent(value)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}`;
+        const url = `${baseUrl}/request?identity=${encodeURIComponent(value)}&status=${encodeURIComponent(status)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}`;
 
         BaseService.get(url,token).then((object) => {
         //console.log(object);
@@ -219,7 +230,7 @@ const Services = () => {
 
 
        
-        getrequests(0,globalFilterValue1);
+        getrequests(0,globalFilterValue1,dropdownItemRequestStatus.code);
 
         
 
@@ -501,7 +512,7 @@ var xx =  formatingDate(value);
                         setDropdownItemRequestType(null);
 
     
-                        getrequests(page,globalFilterValue1);
+                        getrequests(page,globalFilterValue1,dropdownItemRequestStatus.code);
         
                         }else{
                             showalert({

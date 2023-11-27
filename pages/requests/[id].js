@@ -128,7 +128,7 @@ const Request = () => {
         const url = `${baseUrl}/request/${encodeURIComponent(id)}`;
 
         BaseService.get(url,token).then((object) => {
-       console.log(object.data);
+       //console.log(object.data);
          if(object.succes){
             setRequest(object.data);
             setService(object.data.service);
@@ -419,7 +419,6 @@ const addproposal= async () => {
             "point" : point,
             "price": price,
             "brandId": dropdownItemBrand.id, 
-            "endDate": "2023-10-22",
             "proposedtoId": request.createdUser.id,
             "serviceId": request.serviceId,
             
@@ -466,7 +465,7 @@ const addproposal= async () => {
         
      }).catch((message) => {
         setLoading2(false);
-        console.log(message);
+        //console.log(message);
 
         showalert({
             "succes" : false,
