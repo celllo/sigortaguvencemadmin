@@ -21,6 +21,7 @@ import { InputSwitch } from 'primereact/inputswitch';
 import { classNames } from 'primereact/utils';
 import { BrandsService } from '@/service/BrandsService';
 import { BaseService } from '@/service/BaseService';
+import { Dropzone, FileMosaic } from "@dropzone-ui/react";
 
 import { ConfigsService } from '@/service/ConfigsService';
 
@@ -51,14 +52,18 @@ export default function BrandDetail() {
     const [isupdate, setsetisupdate] = useState(false);
     const [countrysearchname, setcountrysearchname] = useState("");
 
+    const [file, setFile] = useState([]);
 
-
+    const [datamail, datasetmail] = useState("");
+    const [datatel, datasettel] = useState("");
 
     const [loading, setLoading] = useState(true);
     const [loadingdialog, setLoadindialog] = useState(false);
 
     const [errorgetbrand, seterrorgetbrand] = useState(null);
     const [erroraddadress, seterroraddadress] = useState(null);
+    const [erroraddadressvisible, seterroraddadressvisible] = useState(null);
+
 
     const [storagedialog, setstoragedialog] = useState(false);
     const [discountdialog, setdiscountdialog] = useState(false);
@@ -306,11 +311,13 @@ export default function BrandDetail() {
        };
        const showalertaddadresserror = (neweeror) => {
         seterroraddadress(neweeror);
+        seterroraddadressvisible(true)
 
 
 
       setTimeout(() => {
         seterroraddadress(null);
+        seterroraddadressvisible(false)
 
      } , 3000);
    };
@@ -1016,7 +1023,266 @@ const url = `${baseUrl}/productdescription`;
  
 
   }
+  function uploadFile() {
+    if((file.length === 0)){
+        showalertaddadresserror(
+            {
+                "succes" : false,
+                "error" : "Lütfen Resim Ekleyiniz",
+                
+            } 
+        );
+        return;
+    }
+    setLoadindialog(true)
 
+    const formData = new FormData();
+        
+    
+    formData.append("file", file[0].file);
+    formData.append('dir', "brands");
+
+
+    var token = "";
+            user.getIdToken().then(function(idToken) {  
+               token =  idToken;
+            }).then(()=>{
+                BaseService.upload(formData,token).then((data) => {
+
+                    if (data.succes) {
+                        
+                        if (data.data.path.length == 0) {
+                            setLoadindialog(false)
+
+    
+                            showalertaddadresserror(
+                                {
+                                    "succes": false,
+                                    "error": "Resim Yükleme Hatası",
+    
+                                }
+                            );
+                            return;
+                        } else{
+                            updateimage(data.data.path);
+                        }
+    
+    
+    
+                    } else {
+                        setLoadindialog(false)
+    
+                        showalertaddadresserror(data);
+    
+                    }
+                    // setUploadedFile([data]);
+                })
+                .catch(({ message }) => {
+                    setLoadindialog(false)
+    
+                    showalertaddadresserror({
+                        "succes": false,
+                        "error": message,
+    
+                    });
+                }); 
+            });
+
+}
+
+const updateimage = async (image) => {
+   
+   
+    setLoadindialog(true);
+    var body = {};
+
+  
+        body = JSON.stringify({
+           "id": id,
+            "path" : image[0],
+           
+           
+        } )
+
+ 
+
+    
+        var token = "";
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+    const url = `${baseUrl}/brand`;
+    BaseService.put(url,body,token).then((object) => {
+        // console.log(object);
+         if(object.succes){
+                    
+                    setFile([]);
+                    
+                    setLoadindialog(false);
+
+    
+            
+    
+             }else{
+                showalertaddadresserror(object);
+                setLoadindialog(false);
+    
+    
+             }
+    
+        
+     }).catch((message) => {
+        setLoadindialog(false);
+
+        showalertaddadresserror({
+            "succes" : false,
+            "error" : message.toString()
+            
+        });
+        // console.log(error);
+    
+    
+     });
+        
+        });
+     
+  
+      }
+
+      const updatetel = async () => {
+   
+        if(datatel == null || datatel == ""){
+            showalertaddadresserror(
+                {
+                    "succes" : false,
+                    "error" : "Lütfen Telefon Bilgisi Giriniz",
+                    
+                } 
+            );
+            return;
+        }
+        setLoadindialog(true);
+        var body = {};
+    
+      
+            body = JSON.stringify({
+               "id": id,
+                "tel" : datatel,
+               
+               
+            } )
+    
+     
+    
+        
+            var token = "";
+            user.getIdToken().then(function(idToken) {  
+               token =  idToken;
+            }).then(()=>{
+        const url = `${baseUrl}/brand`;
+        BaseService.put(url,body,token).then((object) => {
+            // console.log(object);
+             if(object.succes){
+                        
+                        datasettel("");
+                        
+                        setLoadindialog(false);
+    
+        
+                
+        
+                 }else{
+                    showalertaddadresserror(object);
+                    setLoadindialog(false);
+        
+        
+                 }
+        
+            
+         }).catch((message) => {
+            setLoadindialog(false);
+    
+            showalertaddadresserror({
+                "succes" : false,
+                "error" : message.toString()
+                
+            });
+            // console.log(error);
+        
+        
+         });
+            
+            });
+         
+      
+          }
+          const updatemail = async () => {
+            if(datamail == null || datamail == ""){
+                showalertaddadresserror(
+                    {
+                        "succes" : false,
+                        "error" : "Lütfen Mail Bilgisi Giriniz",
+                        
+                    } 
+                );
+                return;
+            }
+   
+            setLoadindialog(true);
+            var body = {};
+        
+          
+                body = JSON.stringify({
+                    "id": id,
+                    "mail" : datamail,
+                   
+                   
+                } )
+        
+         
+        
+            
+                var token = "";
+                user.getIdToken().then(function(idToken) {  
+                   token =  idToken;
+                }).then(()=>{
+            const url = `${baseUrl}/brand`;
+            BaseService.put(url,body,token).then((object) => {
+                // console.log(object);
+                 if(object.succes){
+                            
+                    datasetmail("");
+                            
+                            setLoadindialog(false);
+        
+            
+                    
+            
+                     }else{
+                        showalertaddadresserror(object);
+                        setLoadindialog(false);
+            
+            
+                     }
+            
+                
+             }).catch((message) => {
+                setLoadindialog(false);
+        
+                showalertaddadresserror({
+                    "succes" : false,
+                    "error" : message.toString()
+                    
+                });
+                // console.log(error);
+            
+            
+             });
+                
+                });
+             
+          
+              }
 
 
 
@@ -1135,6 +1401,14 @@ const header1 = renderHeader1();
                        </div>
                         </Dialog>
 
+                        <Dialog  visible={erroraddadressvisible} onHide={() => seterroraddadressvisible(false)} style={{ width: '350px' }} modal >
+                        <div className="flex align-items-center justify-content-center">
+                                <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+
+                                <label>{erroraddadress == null ? "" :  erroraddadress.error}</label>
+                            </div>
+                        </Dialog>
+
 
                     
 
@@ -1142,6 +1416,83 @@ const header1 = renderHeader1();
             <div className="grid">
 
             <div className="col-12">
+            <div className="card">
+                <div className="grid formgrid">
+                    
+
+<div className="field col-12 md:col-8">
+                            <h5>Telefon Güncelleme</h5>
+                        </div>
+<div className="field col-12"> 
+                            <label htmlFor="name">Marka Telefonu </label>
+                            
+</div>
+<div className="field col-12"> 
+                            
+                            <InputText value={datatel} id="name" type="text" onChange={(e)=> datasettel(e.target.value)}/>
+</div>
+
+<div className="field col-12 md:col-4"> 
+
+</div>
+                        
+<div className="field col-12 md:col-4"> 
+<Button type="button"  label="Telefonu Güncelle" outlined onClick={() =>updatetel()} />
+</div>
+
+                </div>
+</div><div className="card">
+                <div className="grid formgrid">
+                    
+
+<div className="field col-12 md:col-8">
+   <h5>Mail Güncelleme </h5>
+   </div>
+<div className="field col-12"> 
+<label htmlFor="name">Marka Mail Adresi </label>
+</div>
+<div className="field col-12"> 
+ <InputText value={datamail} id="name" type="text" onChange={(e)=> datasetmail(e.target.value)}/>
+</div>
+
+<div className="field col-12 md:col-4"> 
+
+</div>
+                        
+<div className="field col-12 md:col-4"> 
+<Button type="button"  label="Maili Güncelle" outlined onClick={() =>updatemail()} />
+</div>
+
+                </div>
+</div>
+            <div className="card">
+                <div className="grid formgrid">
+                    
+
+<div className="field col-12 md:col-8">
+                            <h5>Resim Güncelleme</h5>
+                        </div>
+<div className="field col-12"> 
+<Dropzone accept='image/*'   label="Resmini Buraya Sürükle veya Ekle" onChange={(event)=>setFile(event)} value={file}>
+{file.length != 0 && file.map((filex, index) => (
+                                    <div key={index} >
+                                        <FileMosaic {...filex} preview />
+
+                                    </div>
+                                ))}
+                    </Dropzone>
+</div>
+
+<div className="field col-12 md:col-4"> 
+
+</div>
+                        
+<div className="field col-12 md:col-4"> 
+<Button type="button"  label="Resmi Güncelle" outlined onClick={() =>uploadFile()} />
+</div>
+
+                </div>
+</div>
 <div className="card">
                   
                     <DataTable
@@ -1185,6 +1536,7 @@ const header1 = renderHeader1();
 
 
 <div className="col-12">
+
                 <div className="card">
                 <div className="grid formgrid">
                         <div className="field col-12 md:col-8">

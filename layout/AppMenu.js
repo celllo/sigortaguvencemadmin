@@ -61,7 +61,8 @@ const AppMenu = () => {
                 { label: 'Sigorta Türleri', icon: 'pi pi-fw pi-database', to: '/services' },
                
                 { label: 'Markalar', icon: 'pi pi-fw pi-tags', to: '/brands' },
-             
+                { label: 'Puanlar', icon: 'pi pi-fw pi-star', to: '/points' },
+
 
 
             

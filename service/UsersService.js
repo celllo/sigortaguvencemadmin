@@ -2,11 +2,21 @@
 import baseUrl  from '@/utils/baseUrl';
 
 export const UsersService = {
-    getusers(page,size,name,token) {
+    getusers(page,size,name,order,token) {
         if(name == null){
             name = "";
         }
-        return fetch(`${baseUrl}/users?identityNumber=${encodeURIComponent(name)}&page=${encodeURIComponent(page)}&size=${encodeURIComponent(size)}`, { headers: { 'Cache-Control': 'no-cache' , "Authorization": `Bearer ${token}` } })
+        var url = "";
+        if(order == null){
+            url = `${baseUrl}/users?identityNumber=${encodeURIComponent(name)}&page=${encodeURIComponent(page)}&size=${encodeURIComponent(size)}`;
+        }else{
+            
+
+            
+
+            url = `${baseUrl}/users?identityNumber=${encodeURIComponent(name)}&page=${encodeURIComponent(page)}&size=${encodeURIComponent(size)}&orderlist=${JSON.stringify(order.code)}`;
+        }
+        return fetch(url, { headers: { 'Cache-Control': 'no-cache' , "Authorization": `Bearer ${token}` } })
             .then((res) => res.json())
             .then((d) => d);
     },

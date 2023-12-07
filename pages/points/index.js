@@ -25,7 +25,7 @@ import { Dialog } from 'primereact/dialog';
 
 
 
-const Insurances = () => {
+const Points = () => {
     const { user } = useAuthContext();
     const router = useRouter();
 
@@ -36,7 +36,7 @@ const Insurances = () => {
     const [globalFilterValue1, setGlobalFilterValue1] = useState('');
  
 
-    const [insurances, setInsurances] = useState([]);
+    const [points, setPoints] = useState([]);
     const [loading, setLoading] = useState(true);
 
 
@@ -49,7 +49,6 @@ const Insurances = () => {
     const [errorvisible, seterrorvisible] = useState(false);
     const [error, seterror] = useState(null);
     const [dropdownItemInsuranceType, setDropdownItemInsuranceType] = useState(null);
-    const [dropdownItemInsuranceStatus, setdropdownItemInsuranceStatus] = useState( { name: 'Aktif', code: 'active' });
 
     const dropdownItemsInsuranceTypes = [
         { name: 'Aktif', code: 'active' },
@@ -62,18 +61,9 @@ const Insurances = () => {
       
 
     ];
-
-    const [startcalendarValue, setStartCalendarValue] = useState(null);
-   const [endcalendarValue, setEndCalendarValue] = useState(null);
     const clearFilter1 = () => {
         setGlobalFilterValue1("");
-        if(startcalendarValue == null || endcalendarValue == null){
-            getinsurances(0,"",dropdownItemInsuranceStatus.code,"","");
-
-        }else{
-            getinsurances(0,"",dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue);
-
-        }
+        getpoints(0,"");
         
      };
  
@@ -81,22 +71,8 @@ const Insurances = () => {
          const value = e.target.value;
         
          setGlobalFilterValue1(value);
-         if(startcalendarValue == null || endcalendarValue == null){
-            getinsurances(page,value,dropdownItemInsuranceStatus.code,"","");
-
-        }else{
-            getinsurances(page,value,dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue);
-
-        }
+         getpoints(page,value);
      };
-     const cleandata = ()=>{
-        setEndCalendarValue(null);
-        setStartCalendarValue(null);
-        getinsurances(page,value,dropdownItemInsuranceStatus.code,"","");
-       
-      
-      
-      }
 
      const changePage = (newPage) => {
         if(parseInt(newPage) == 0){
@@ -108,24 +84,13 @@ const Insurances = () => {
 
         }
         setPage(parseInt(newPage));
-        if(startcalendarValue == null || endcalendarValue == null){
-            getinsurances(newPage,globalFilterValue1,dropdownItemInsuranceStatus.code,"","");
-
-        }else{
-            getinsurances(newPage,globalFilterValue1,dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue);
-
-        }
+        getpoints(newPage,globalFilterValue1);
        }
 
     const renderHeader1 = () => {
         return (
             <div className="flex justify-content-between">
                 <Button type="button" icon="pi pi-filter-slash" label="Temizle" outlined onClick={clearFilter1} />
-                 <div className="mb-2">
-                          <label >Sigorta Durumu </label>
-                            <Dropdown id="actiontype" value={dropdownItemInsuranceStatus} onChange={(e) => {
-                                onTypeChange(e.value)}} options={dropdownItemsInsuranceTypes} optionLabel="name" placeholder="Seçiniz"></Dropdown>
-                          </div>
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue1} onChange={onGlobalFilterChange1} placeholder="Sigorta Sahibi TC" />
@@ -136,40 +101,21 @@ const Insurances = () => {
   
 
 
-       const getinsurances = async (page,value,status,start,end) => {
+       const getpoints = async (page,value) => {
        
         setLoading(true);
         var token = "";
         user.getIdToken().then(function(idToken) {  
            token =  idToken;
         }).then(()=>{
-            //console.log(start);
-            var url = "";
-            if(start == "" || end == ""){
-
-                 url = `${baseUrl}/insurance?identity=${encodeURIComponent(value)}&status=${encodeURIComponent(status)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}`;
-
-
-            }else{
-                var timestampstart = Date.parse(start);
-                var d = new Date(timestampstart);
-                var  timeStampStart = d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
-              
-              
-                var timestampend = Date.parse(end);
-                var dend = new Date(timestampend);
-                var  timeStampEnd = dend.getFullYear() + '/' + (dend.getMonth()+1) + '/' + dend.getDate();
-                 url = `${baseUrl}/insurance?identity=${encodeURIComponent(value)}&status=${encodeURIComponent(status)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}&endstart=${encodeURIComponent(timeStampStart)}&endend=${encodeURIComponent(timeStampEnd)}`;
-
-
-            }
+           const url = `${baseUrl}/points?identity=${encodeURIComponent(value)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}`;
    
            BaseService.get(url,token).then((object) => {
            //console.log(object);
             if(object.succes){
                 setTotalpage(object.totalPages);
 
-               setInsurances(object.data);
+               setPoints(object.data);
                 
        
                
@@ -221,24 +167,14 @@ const Insurances = () => {
 
        
         
-        getinsurances(0,globalFilterValue1,dropdownItemInsuranceStatus.code,"","");
+        getpoints(0,globalFilterValue1);
         
 
        
 
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const onTypeChange = (e) => {
-        setdropdownItemInsuranceStatus(e);
-        if(startcalendarValue == null || endcalendarValue == null){
-            getinsurances(0,globalFilterValue1,e.code,"","");
 
-        }else{
-            getinsurances(0,globalFilterValue1,e.code,startcalendarValue,endcalendarValue);
-
-        }
-
-    };
      /// is checked 
      const switchTemplate = (rowData) => {
        
@@ -266,13 +202,8 @@ const Insurances = () => {
             }).then(()=>{
                 BaseService.get(url,token).then((data) => {
                 if(data.succes){
-                if(startcalendarValue == null || endcalendarValue == null){
-                    getinsurances(0,globalFilterValue1,e.code,"","");
-        
-                }else{
-                    getinsurances(0,globalFilterValue1,e.code,startcalendarValue,endcalendarValue);
-        
-                }
+                    getpoints(0,"");
+
                 }else{
                 showalert(data);
                setLoading(false);
@@ -365,21 +296,32 @@ var xx =  formatingDate(value);
     };
 
     const pdfTemplate = (rowData) => {
-       return <a href={`${fileUrl}${rowData.pdf}`} target="_blank">
+        if(rowData.insurance == null){
+            return <label></label>
+        }
+       return <a href={`${fileUrl}${rowData.insurance.pdf}`} target="_blank">
          <Button style={{margin: "5px"}} type="button" label="Görüntüle">
 
 </Button>  
        </a>
        
     };
+    const cancelTemplate = (rowData) => {
+        return <a href={`${fileUrl}${rowData.cancelpath}`} target="_blank">
+          <Button style={{margin: "5px"}} type="button" label="Görüntüle">
+ 
+ </Button>  
+        </a>
+        
+     };
 
     const ownerBodyTemplate = (rowData) => {
        
-        if(rowData.userinsurance == null){
+        if(rowData.user == null){
             return <label></label> ;
 
         }
-        return <label>{rowData.userinsurance.name == null ? "" :rowData.userinsurance.name } {rowData.userinsurance.surname == null ? "" :rowData.userinsurance.surname } TC:{rowData.userinsurance.identityNumber} Telefon:{rowData.userinsurance.telephone}</label>
+        return <label>{rowData.user.name == null ? "" :rowData.user.name } {rowData.user.surname == null ? "" :rowData.user.surname } TC:{rowData.user.identityNumber} Telefon:{rowData.user.telephone}</label>
         
     };
 
@@ -392,15 +334,6 @@ var xx =  formatingDate(value);
         return <label> {rowData.forotherinsurance.name == null ? "" :rowData.forotherinsurance.name } {rowData.forotherinsurance.surname == null ? "" :rowData.forotherinsurance.surname } TC:{rowData.forotherinsurance.identityNumber} Telefon:{rowData.forotherinsurance.telephone}</label>
         
     };
-    const insuranceTypeBodyTemplate = (rowData) => {
-       
-        if(rowData.service == null){
-            return <label></label> ;
-
-        }
-        return <label> {rowData.service.name == null ? "" :rowData.service.name } </label>
-        
-    };
 
 
     const DialogFooterInsuranceType = (
@@ -411,7 +344,7 @@ var xx =  formatingDate(value);
     );
     const updateinsuranceypetemplate = (rowData) => {
         return   <div>
-            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() =>{ setselectedinsuranceid(rowData.id); setinsurancetypedialog(true)} } />
+            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() =>{console.log(rowData.id); setselectedinsuranceid(rowData.id); setinsurancetypedialog(true)} } />
             
         </div>
         
@@ -446,7 +379,7 @@ var xx =  formatingDate(value);
                         setDropdownItemInsuranceType(null);
 
     
-                        getinsurances(page,globalFilterValue1,dropdownItemInsuranceStatus.code);
+                        getpoints(page,globalFilterValue1);
                         
                         }else{
                             showalert({
@@ -479,16 +412,12 @@ var xx =  formatingDate(value);
 
       const statusTypeBodyTemplate = (rowData) => {
         switch(rowData.status) {
-            case "active":
-            return <label  >Aktif</label> ;
+            case "rewarded":
+            return <label  >{rowData.point} Puan Kazanıldı</label> ;
             
-        case  "passive":
-        return <label>Pasif</label> ;
-        case "cancel":
-        return <label  >İptal İsteği Oluşturuldu</label> ;
-    
-        case "deletedbyadmin":
-        return <label  >Admin Tarafından Silindi</label> ;
+        case  "used":
+        return <label>{rowData.point} Puan Kullanıldı</label> ;
+       
         default:
         return <label></label> ;
           }
@@ -534,42 +463,9 @@ var xx =  formatingDate(value);
         <div className="grid">
             <div className="col-12">
                 <div className="card">
-                    <h5>Sigortalar</h5>
-                <div className="flex justify-content-between">
-
-                <span>Sigorta Bitiş Tarihine Göre Ara</span>
-                <div>
-                <Button style={{marginRight:"2px", marginBottom: "2px"}} type="button" label="Ara" icon="pi pi-search" onClick={() =>  getinsurances(page,globalFilterValue1,dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue)}  />
-                    
-                <Button  style={{marginRight:"2px", marginBottom: "2px"}} type="button" label="Seçimi Temizle" icon="pi pi-times" onClick={() => cleandata()}  />
-
-                </div>
-
-                        
-                    
-
-                </div>
-                <div className="col-12 "></div>
-
-               
-                <div className="grid formgrid"> 
-                <div className="col-6 mb-2">
-                       <span>Bitiş İlk Tarih </span>
-                       <Calendar showIcon showButtonBar dateFormat="dd/mm/yy" value={startcalendarValue} onChange={(e) => setStartCalendarValue(e.value)}></Calendar>
-                       </div>
-                       <div className="col-6 mb-2  ">
-                       <span>Bitiş Son Tarih </span>
-                       <Calendar showIcon showButtonBar dateFormat="dd-mm-yy" value={endcalendarValue} onChange={(e) => {
-                        setEndCalendarValue(e.value);
-                        
-                        }}></Calendar>
-                       </div>
-                       
-                
-                
-                </div>
+                    <h5>Puanlar</h5>
                     <DataTable
-                        value={insurances}
+                        value={points}
                         
                         className="p-datatable-gridlines"
                         showGridlines
@@ -581,21 +477,15 @@ var xx =  formatingDate(value);
                         header={header1}
                     >
                      <Column field="id" header="ID"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
-                     <Column field="id" header="Sigorta Sahibi"  bodyClassName="text-center" style={{ minWidth: '8rem' }} body={ownerBodyTemplate}  />
-                     <Column field="id" header="Sigortayı Oluşturan"  bodyClassName="text-center" style={{ minWidth: '8rem' }} body={createrBodyTemplate}  />
-                     <Column field="id" header="Sigorta Türü"  bodyClassName="text-center" style={{ minWidth: '8rem' }} body={insuranceTypeBodyTemplate}  />
+                     <Column field="id" header="Kullanıcı"  bodyClassName="text-center" style={{ minWidth: '8rem' }} body={ownerBodyTemplate}  />
 
 
 
+                        <Column field="id" header="  Puan  "  body={statusTypeBodyTemplate} />
 
-                        <Column header="Başlangıç Tarihi"  dataType="date" style={{ minWidth: '10rem' }} body={dateStartBodyTemplate} />
-                        <Column header="Bitiş Tarihi" dataType="date" style={{ minWidth: '10rem' }} body={dateEndBodyTemplate} />
-
-                        <Column header="Oluşturulma Tarihi"  dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate} />
-                        <Column field="id" header="Sigorta Durumu"  body={statusTypeBodyTemplate} />
-
-                        <Column field="id" header="Güncelle"  bodyClassName="text-center" style={{ minWidth: '8rem' }} body={updateinsuranceypetemplate}  />
                         <Column field="id" header="Sigorta Dosyası"  bodyClassName="text-center" style={{ minWidth: '8rem' }} body={pdfTemplate}  />
+                        <Column header="Oluşturulma Tarihi"  dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate} />
+
 
                     </DataTable>
                     <div className="flex justify-content-between" style={{padding : "10px"}}>
@@ -639,7 +529,7 @@ var xx =  formatingDate(value);
     );
 };
 
-export default Insurances;
+export default Points;
 
 
 

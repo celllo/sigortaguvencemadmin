@@ -36,6 +36,8 @@ const CreateInsurance = () => {
     const [file, setFile] = useState([]);
 
     const [loading, setLoading] = useState(true);
+    const [loadingServices, setLoadingServices] = useState(true);
+
     const [loadingpoint, setLoadingPoint] = useState(false);
 
 
@@ -46,8 +48,11 @@ const CreateInsurance = () => {
 
     const [leadingcheckbox, setleadingcheckbox] = useState(false);
     const [leadingcheckboxpoint, setleadingcheckboxpoint] = useState(false);
+    const [services, setServices] = useState([]);
+    const [dropdownItemService, setdropdownItemService] = useState(null);
 
     const [dropdownItemUser, setdropdownItemUser] = useState(null);
+
     const [users, setUsers] = useState([]);
     const [usersPoint, setUsersPoint] = useState([]);
 
@@ -165,6 +170,52 @@ const CreateInsurance = () => {
         }); 
        });
     }
+    const getservices = async () => {
+       
+        setLoadingServices(true);
+        var token = "";
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+           const url = `${baseUrl}/service`;
+   
+           BaseService.get(url,token).then((object) => {
+           //console.log(object);
+            if(object.succes){
+                let newdata = [];
+                object.data?.forEach((element) => {
+                    newdata.push({"id" : element.id , "label" : ` ${element.name == null ? "" : element.name} `})
+                })
+               setServices(newdata);
+                
+       
+               
+               setLoadingServices(false);
+       
+                }else{
+                   showalert(object);
+                   setLoadingServices(false);
+       
+       
+                }
+       
+           
+        }).catch((message) => {
+            setLoadingServices(false);
+   
+           showalert({
+               "succes" : false,
+               "error" : message.toString()
+               
+           });
+           // console.log(error);
+       
+       
+        }); 
+       });
+         
+       
+          }
 
        const showalert = (neweeror) => {
         seterror(neweeror);
@@ -187,7 +238,7 @@ const CreateInsurance = () => {
 
        
         
-        
+        getservices();
 
        
 
@@ -210,6 +261,11 @@ const CreateInsurance = () => {
 
 
 function uploadFile() {
+ 
+
+
+
+    
     if(identityNumber == null || identityNumber == ""){
         showalert(
          {
@@ -220,7 +276,7 @@ function uploadFile() {
         );
         return;
     }
-    if(amount == null || amount == ""){
+    if((amount == null || amount == "") && amount !=0){
         showalert(
          {
                 "succes" : false,
@@ -235,6 +291,16 @@ function uploadFile() {
          {
                 "succes" : false,
                 "error" : "Lütfen Sigorta Kullanıcısını Seçiniz",
+                
+            } 
+        );
+        return;
+    }
+    if(dropdownItemService == null){
+        showalert(
+         {
+                "succes" : false,
+                "error" : "Lütfen Sigorta Türü Seçiniz",
                 
             } 
         );
@@ -365,7 +431,7 @@ const createinsurance = async (pdf) => {
             "endDate" : timeStampEnd,
             "owneruserId" : dropdownItemUser.id,
             "createduserId" : dropdownItemUserPoint.id,
-
+            "serviceId" : dropdownItemService.id,
             "pdf" : pdf[0],
            
            
@@ -379,6 +445,8 @@ const createinsurance = async (pdf) => {
             "endDate" : timeStampEnd,
             "owneruserId" : dropdownItemUser.id,
             "createduserId" : dropdownItemUser.id,
+            "serviceId" : dropdownItemService.id,
+
 
             "pdf" : pdf[0],
            
@@ -397,13 +465,12 @@ const createinsurance = async (pdf) => {
         }).then(()=>{
     const url = `${baseUrl}/insurance`;
     BaseService.post(url,body,token).then((object) => {
-        // console.log(object);
          if(object.succes){
                    
          
             
                    
-            addpoint();
+            addpoint(object.data.id);
             
     
             
@@ -435,7 +502,7 @@ const createinsurance = async (pdf) => {
   
       }
 
-      const addpoint = async () => {
+      const addpoint = async (insuranceid) => {
        
         var body2 = {};
         if(leadingcheckboxpoint){
@@ -445,6 +512,7 @@ const createinsurance = async (pdf) => {
                     "point" : amount,
                     "status" : "used",
                     "userId" : dropdownItemUserPoint.id,
+                    "insuranceId" : insuranceid,
                    
                 } )
             }else{
@@ -452,6 +520,8 @@ const createinsurance = async (pdf) => {
                     "point" : amount,
                     "status" : "used",
                     "userId" : dropdownItemUser.id,
+                    "insuranceId" : insuranceid,
+
                    
                 } )
             }
@@ -461,6 +531,8 @@ const createinsurance = async (pdf) => {
                     "point" : amount,
                     "status" : "rewarded",
                     "userId" : dropdownItemUserPoint.id,
+                    "insuranceId" : insuranceid,
+
                    
                 } )
             }else{
@@ -468,6 +540,8 @@ const createinsurance = async (pdf) => {
                     "point" : amount,
                     "status" : "rewarded",
                     "userId" : dropdownItemUser.id,
+                    "insuranceId" : insuranceid,
+
                    
                 } )
             }
@@ -481,7 +555,7 @@ const createinsurance = async (pdf) => {
         }).then(()=>{
     const url2 = `${baseUrl}/points`;
     BaseService.post(url2,body2,token2).then((object) => {
-        console.log(object);
+        //console.log(object);
       
          if(object.succes){
            
@@ -666,14 +740,20 @@ var xx =  formatingDate(value);
                        <label>Sigorta Başlangıç Tarihi</label>
                        <Calendar showIcon showButtonBar dateFormat="dd/mm/yy" value={startcalendarValue} onChange={(e) => setStartCalendarValue(e.value)}></Calendar>
                        </div>
+
                        <div className="field col-12 md:col-6">
                        <label>Sigorta Bitiş Tarihi</label>
                        <Calendar showIcon showButtonBar dateFormat="dd-mm-yy" value={endcalendarValue} onChange={(e) => {
                         setEndCalendarValue(e.value);
-                        console.log(e);
                         
                         }}></Calendar>
                        </div>
+                       <div className="field col-12 md:col-12">
+                             <label >Sigorta Türü</label> 
+                        { loadingServices ? <CircularProgress /> : 
+
+                            <Dropdown    id="user" value={dropdownItemService} onChange={(e) => setdropdownItemService(e.value) } options={services}   optionLabel="label" placeholder="Sigorta Türü Seçiniz"></Dropdown>}
+                        </div>
                        <div className="col-12 md:col-12">
                             <div className="field-checkbox">
                                 <Checkbox inputId="checkOption2" name="option" value="leading" checked={leadingcheckboxpoint} onChange={onleadingCheckboxChangePoint} />

@@ -50,9 +50,32 @@ const TableDemo = () => {
 
     const [dropdownItemUserType, setDropdownItemUserType] = useState(null);
 
+
+    const [dropdownItemOrderStatus, setdropdownItemOrderStatus] = useState(null);
+
+    const dropdownItemsOrder = [
+        { name: 'Yüksekten Düşüğe', code: [{"column" : "total_point", "direction" : "DESC"}] },
+        { name: 'Düşükten Yükseğe', code: [{"column" : "total_point", "direction" : "ASC"}]},
+        
+
+
+      
+
+    ];
+    const onTypeChange = (e) => {
+        setdropdownItemOrderStatus(e);
+        fetchUserData(page,globalFilterValue1,e);
+
+
+       
+
+    };
+
     const clearFilter1 = () => {
        setGlobalFilterValue1("");
-       getusers();
+       setdropdownItemOrderStatus(null);
+       fetchUserData(0,"","xx")
+       //getusers();
        
     };
 
@@ -67,6 +90,11 @@ const TableDemo = () => {
         return (
             <div className="flex justify-content-between">
                 <Button type="button" icon="pi pi-filter-slash" label="Temizle" outlined onClick={clearFilter1} />
+                <div className="mb-2">
+                          <label >Puan Sıralaması </label>
+                            <Dropdown id="order" value={dropdownItemOrderStatus} onChange={(e) => {
+                                onTypeChange(e.value)}} options={dropdownItemsOrder} optionLabel="name" placeholder="Seçiniz"></Dropdown>
+                          </div>
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue1} onChange={onGlobalFilterChange1} placeholder="TC Kimlik Numarası" />
@@ -74,15 +102,26 @@ const TableDemo = () => {
             </div>
         );
     };
-    const fetchUserData = async (page,name) => {
-    
+    const fetchUserData = async (page,name,type) => {
+    var typedata;
+    if(type == null){
+        typedata = dropdownItemOrderStatus;
+
+    }else{
+        if(type == "xx"){
+            typedata = null
+        }else{
+            typedata = type;
+
+        }
+    }
     setLoading1(true);
     var token = "";
     user.getIdToken().then(function(idToken) {  
        token =  idToken;
        console.log(token);
     }).then(()=>{
-    UsersService.getusers((page-1),10,name,token).then((object) => {
+    UsersService.getusers((page-1),10,name,typedata,token).then((object) => {
         // console.log(object);
          if(object.succes){
             setTotalpage(object.totalPages);
@@ -179,9 +218,9 @@ const TableDemo = () => {
     useEffect(() => {
 
 
-        getusers();
+        //getusers();
         
-        //fetchUserData(page,globalFilterValue1);
+        fetchUserData(0,"");
         
 
        
@@ -495,6 +534,9 @@ var xx =  formatingDate(value);
                         <Column field="identityNumber" header="T.C. No" style={{ minWidth: '12rem' }} />
                         <Column field="name" header="İsmi" style={{ minWidth: '12rem' }} />
                         <Column field="surname" header="Soyismi"  style={{ minWidth: '12rem' }} />
+                        <Column field="total_point" header="Puan"  style={{ minWidth: '12rem' }} />
+
+                        
                         <Column field="email" header="Mail"  style={{ minWidth: '12rem' }} />  
                         <Column field="telephone" header="Telefon"  style={{ minWidth: '12rem' }} />
                         <Column header="Doğum Tarihi"  style={{ minWidth: '10rem' }} body={birthdateBodyTemplate}  />
