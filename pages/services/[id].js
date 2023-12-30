@@ -50,6 +50,7 @@ const Services = () => {
     const [addselectedquestion, setaddselectedquestion] = useState(null);
     const [deleteconfirm, setdeleteconfirm] = useState(false);
     const [deleteidoption, setdeleteidoption] = useState(null);
+    const [file, setFile] = useState([]);
 
     //Question ekle 
     const [dropdownItem, setDropdownItem] = useState(null);
@@ -114,10 +115,10 @@ const Services = () => {
         const url = `${baseUrl}/service/${encodeURIComponent(id)}`;
 
         BaseService.get(url,token).then((object) => {
-        //console.log(object);
          if(object.succes){
             setService(object.data);
             setQuestions(object.data.survey.servicequestions);
+        console.log(object.data);
              
     
             
@@ -222,6 +223,135 @@ const Services = () => {
             
          }
       }, [router.isReady]);
+
+
+      //update image 
+
+      function uploadFile() {
+        if((file.length === 0)){
+            showalert(
+                {
+                    "succes" : false,
+                    "error" : "Lütfen Resim Ekleyiniz",
+                    
+                } 
+            );
+            return;
+        }
+        setLoading(true)
+    
+        const formData = new FormData();
+            
+        
+        formData.append("file", file[0].file);
+        formData.append('dir', "services");
+    
+    
+        var token = "";
+                user.getIdToken().then(function(idToken) {  
+                   token =  idToken;
+                }).then(()=>{
+                    BaseService.upload(formData,token).then((data) => {
+    
+                        if (data.succes) {
+                            
+                            if (data.data.path.length == 0) {
+                                setLoading(false)
+    
+        
+                                showalert(
+                                    {
+                                        "succes": false,
+                                        "error": "Resim Yükleme Hatası",
+        
+                                    }
+                                );
+                                return;
+                            } else{
+                                updateimage(data.data.path);
+                            }
+        
+        
+        
+                        } else {
+                            setLoading(false)
+        
+                            showalert(data);
+        
+                        }
+                        // setUploadedFile([data]);
+                    })
+                    .catch(({ message }) => {
+                        setLoading(false)
+        
+                        showalert({
+                            "succes": false,
+                            "error": message,
+        
+                        });
+                    }); 
+                });
+    
+    }
+    
+    const updateimage = async (image) => {
+       
+       
+        setLoading(true);
+        var body = {};
+    
+      
+            body = JSON.stringify({
+               "id": id,
+             "icon_path" : image[0],
+               
+               
+            } )
+    
+     
+    
+        
+            var token = "";
+            user.getIdToken().then(function(idToken) {  
+               token =  idToken;
+            }).then(()=>{
+        const url = `${baseUrl}/service`;
+        BaseService.put(url,body,token).then((object) => {
+            // console.log(object);
+             if(object.succes){
+                        
+                        setFile([]);
+                        
+                        setLoading(false);
+    
+        
+                
+        
+                 }else{
+                    showalert(object);
+                    setLoading(false);
+        
+        
+                 }
+        
+            
+         }).catch((message) => {
+            setLoading(false);
+    
+            showalert({
+                "succes" : false,
+                "error" : message.toString()
+                
+            });
+            // console.log(error);
+        
+        
+         });
+            
+            });
+         
+      
+          }
 
   
 
@@ -934,6 +1064,35 @@ var xx =  formatingDate(value);
 
 </div>
 </div>
+</div>
+
+<div className="card">
+                <div className="grid formgrid">
+                    
+
+<div className="field col-12 md:col-8">
+                            <h5>Resim Güncelleme</h5>
+                        </div>
+<div className="field col-12"> 
+<Dropzone accept='image/*'   label="Resmini Buraya Sürükle veya Ekle" onChange={(event)=>setFile(event)} value={file}>
+{file.length != 0 && file.map((filex, index) => (
+                                    <div key={index} >
+                                        <FileMosaic {...filex} preview />
+
+                                    </div>
+                                ))}
+                    </Dropzone>
+</div>
+
+<div className="field col-12 md:col-4"> 
+
+</div>
+                        
+<div className="field col-12 md:col-4"> 
+<Button type="button"  label="Resmi Güncelle" outlined onClick={() =>uploadFile()} />
+</div>
+
+                </div>
 </div>
 
         <div className="col-12">
