@@ -77,6 +77,7 @@ const AppMenu = () => {
                 { label: 'S.S.S', icon: 'pi pi-fw pi-question-circle', to: '/communication/faq' },
                 { label: 'Sosyal Linkler', icon: 'pi pi-fw pi-link', to: '/communication/socials' },
                 { label: 'Bildirimler', icon: 'pi pi-fw pi-send', to: '/communication/notifications' },
+                { label: 'Sms Gönder', icon: 'pi pi-fw pi-send', to: '/communication/sendsms' },
 
 
                 

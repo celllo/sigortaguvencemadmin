@@ -628,7 +628,7 @@ var xx =  formatingDate(value);
             });
       }
 
-      const updaterequesttype = async () => {
+      const updaterequesttype = async (notif) => {
        
        
         setLoading2(true);
@@ -647,7 +647,13 @@ var xx =  formatingDate(value);
             const url = `${baseUrl}/request`;
             BaseService.put(url,body,token).then((data) => {
                     if(data.succes){
-                        sendNotif();
+                        if(notif){
+                            sendNotif();
+
+                        }else{
+                            sendSms();
+
+                        }
     
                         }else{
                             showalert({
@@ -742,6 +748,71 @@ var xx =  formatingDate(value);
     
                 }) ; });
       }
+
+
+      const sendSms = async () => {
+       
+        var body = {};
+        if(adminnote == null || adminnote == ""){
+            body = JSON.stringify({
+                "message" : "Teklifiniz Oluşturuldu.Teklif Detaylarınıza Geçmiş Sigorta Sorgularım bölümünden ulaşabilirsiniz.",
+    "userId" : creteduser.id
+            } );
+        }else{
+
+            body = JSON.stringify({
+                "message" : adminnote,
+    "userId" : creteduser.id
+            } );
+
+        }
+
+       
+           
+        
+        
+        var token = "";
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+        fetch(`${baseUrl}/sms/normal`, {
+            method: "POST",
+             body: body,   
+            headers: { 'Cache-Control': 'no-cache','Content-Type': 'application/json', "Authorization": `Bearer ${token}` } })
+            .then((res) => res.json())
+                .then(data => {
+                    if(data.succes){
+                                               setLoading2(false);
+
+                        setAdminNote("");
+
+        
+                        }else{
+                            setLoading2(false);
+
+                            showalert({
+                                "succes" : false,
+                                "error" : "Sms Gönderilemedi",
+                                
+                            } );
+
+    
+        
+                        }
+                
+                }) // Manipulate the data retrieved back, if we want to do something with it
+                .catch(message => { 
+                    setLoading2(false);
+
+                    showalert({
+                        "succes" : false,
+                        "error" : "Sms Gönderilemedi",
+                        
+                    } );
+    
+                }) ; });
+      }
+   
    
    
    
@@ -997,15 +1068,15 @@ var xx =  formatingDate(value);
 
 
                     <div className="col-12 mb-2 lg:col-12 lg:mb-0">
-                            <h5>Teklif Oluşturuldu Bildirimi Gönder</h5>
+                            <h5>Teklif Oluşturuldu Bildirimi ve Sms'i Gönder</h5>
                         </div>
                         <div className="field col-12 md:col-6">
-                            <label htmlFor="adminnote">Bildirim Notu</label>
+                            <label htmlFor="adminnote">Not</label>
                             <InputText value={adminnote} id="adminnote" type="text"onChange={(e)=> setAdminNote(e.target.value)} />
                         </div>
 
                         <div className="field col-12 md:col-12">
-                            <span>Bildirim notu eklendiği zaman kullanıcıya bildirim olarak not alanındaki içerik gönderilir. Boş bırakıldığında ise otomatik teklif oluşturuldu bildirimi gönderilir.</span>
+                            <span>Bildirim notu eklendiği zaman kullanıcıya not alanındaki içerik gönderilir. Boş bırakıldığında ise otomatik teklif oluşturuldu notu gönderilir.</span>
                         </div>
                       
                          
@@ -1027,7 +1098,11 @@ var xx =  formatingDate(value);
 </div>
                         
 <div className="field col-12 md:col-4"> 
-<Button type="button"  label="Gönder" outlined onClick={() =>updaterequesttype()} />
+<Button type="button"  label="Bildirim Gönder" outlined onClick={() =>updaterequesttype(true)} />
+</div>
+
+<div className="field col-12 md:col-4"> 
+<Button type="button"  label="Sms Gönder" outlined onClick={() =>updaterequesttype(false)} />
 </div>
 
 

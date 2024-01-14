@@ -19,7 +19,7 @@ import baseUrl  from '@/utils/baseUrl';
 import errorImageUrl from '@/utils/errorimageUrl';
 import fileUrl from '@/utils/fileUrl';
 
-const Socials = () => {
+const SendSms = () => {
     const { user } = useAuthContext();
 
     const [filters1, setFilters1] = useState(null);
@@ -35,10 +35,7 @@ const Socials = () => {
     const [errorgetnotifications, seterrorGetnotifications] = useState(null);
     const [errorsendnotificaiton, seterrorSendnotification] = useState(null);
 
-    const [notifid, setNotifid] = useState(null);
-    const [title, setTitle] = useState("");
     const [bodydata, setBody] = useState("");
-    const [topic, setTopic] = useState("");
     const [errorvisible, seterrorvisible] = useState(false);
     const [error, seterror] = useState(null);
 
@@ -47,11 +44,6 @@ const Socials = () => {
 
     const [loading, setLoading] = useState(true);
 
-    const [dropdownItem, setDropdownItem] = useState(null);
-    const dropdownItems = [
-        { name: 'Herkes', code: 'all' },
-        { name: 'Kullanıcı', code: 'tc' },
-        { name: 'Admin', code: 'admin' }];
 
         const [dropdownItemUser, setdropdownItemUser] = useState(null);
         const [users, setUsers] = useState([]);
@@ -94,7 +86,7 @@ const Socials = () => {
     user.getIdToken().then(function(idToken) {  
        token =  idToken;
     }).then(()=>{
-    ContactUsService.getNotifs(token).then((object) => {
+    ContactUsService.getSms(token).then((object) => {
         // console.log(object);
          if(object.succes){
             setNotifications(object.data);
@@ -142,7 +134,7 @@ const Socials = () => {
             if(object.succes){
                let newdata = [];
                object.data?.forEach((element) => {
-                   newdata.push({"id" : element.identityNumber , "label" : `TC:${element.identityNumber} ${element.name == null ? "" : element.name} ${element.surname == null ? "" :  element.surname} Telefon:${element.telephone} Puan:${element.total_point == null ? 0 : element.total_point}`})
+                   newdata.push({"id" : element.id , "label" : `TC:${element.identityNumber} ${element.name == null ? "" : element.name} ${element.surname == null ? "" :  element.surname} Telefon:${element.telephone} Puan:${element.total_point == null ? 0 : element.total_point}`})
                })
    
                setUsers(newdata)
@@ -189,17 +181,8 @@ const Socials = () => {
     
           } , 3000);
         };
-      const sendNotif = async () => {
-        if(title == null || title == ""){
-            showalert(
-               {
-                    "succes" : false,
-                    "error" : "Lütfen Başlık Bilgisini Giriniz",
-                    
-                } 
-            );
-            return;
-        }
+      const sendSms = async () => {
+     
         if(bodydata == null || bodydata == ""){
             showalert(
                {
@@ -210,40 +193,33 @@ const Socials = () => {
             );
             return;
         }
-        if(dropdownItem == null){
+
+        if(dropdownItemUser == null ){
             showalert(
-                {
+               {
                     "succes" : false,
-                    "error" : "Lütfen Konu Seçiniz",
+                    "error" : "Lütfen Kullanıcı Seçiniz",
                     
                 } 
             );
             return;
         }
-        var body = {};
+       
+        var body = {
+          
+        };
 
-        if(dropdownItem.code == "tc"){
-            body = JSON.stringify({
-                "body" : bodydata,
-    "title": title,
-    "topic" : dropdownItemUser.id
-            } );
-            
-            
-        }else{
-            body = JSON.stringify({
-                "body" : bodydata,
-    "title": title,
-    "topic" : dropdownItem.code
-            } );
-        }
+        body = JSON.stringify({
+            "message" : bodydata, 
+    "userId" : dropdownItemUser.id
+        } );
         
         setLoadingadd(true);
         var token = "";
         user.getIdToken().then(function(idToken) {  
            token =  idToken;
         }).then(()=>{
-        fetch(`${baseUrl}/notifs`, {
+        fetch(`${baseUrl}/sms/normal`, {
             method: "POST",
              body: body,   
             headers: { 'Cache-Control': 'no-cache','Content-Type': 'application/json', "Authorization": `Bearer ${token}` } })
@@ -251,15 +227,13 @@ const Socials = () => {
                 .then(data => {
                     if(data.succes){
                         setBody("");
-                        setTitle("");
-                        setTopic("");
+                       
                         setUsers(null);
                         setidentityNumber("");
-
+                        fetchNotifsData();
                         setLoadingadd(false);
                         setsendnotifsucces(true);
     
-                        fetchNotifsData();
         
                         }else{
                             showalert(data);
@@ -272,7 +246,6 @@ const Socials = () => {
                 }) // Manipulate the data retrieved back, if we want to do something with it
                 .catch(message => { 
                     setLoadingadd(false);
-                    console.log(message);
                     
                     showalert({
                         "succes" : false,
@@ -399,7 +372,6 @@ const Socials = () => {
       
         
         fetchNotifsData();
-        
 
 
         initFilters1();
@@ -444,6 +416,19 @@ var xx =  formatingDate(value);
 
     const dateBodyTemplate = (rowData) => {
         return formatDate(rowData.createdAt);
+    };
+
+    const usersType = (rowData) => {
+            
+        if(!rowData.user){
+            return <label></label> ;
+
+        }else{
+            return <label>{rowData.user.name} {rowData.user.surname}</label> ;
+        }
+      
+        
+        
     };
 
   
@@ -498,7 +483,7 @@ var xx =  formatingDate(value);
         <div className="grid">
             <div className="col-12">
                 <div className="card">
-                    <h5>Bildirimler</h5>
+                    <h5>Sms'ler</h5>
 
                     <DataTable
                         value={notifications}
@@ -507,27 +492,25 @@ var xx =  formatingDate(value);
                         showGridlines
                         rows={10}
                         dataKey="id"
-                        filters={filters1}
                         filterDisplay="menu"
                         loading={loading1}
+
                         responsiveLayout="scroll"
                         emptyMessage="Mesaj Bulunamadı"
-                        header={header1}
                     >
-                        <Column field="title" header="Başlık"  style={{ minWidth: '12rem' }} />
-                        <Column field="body" header="İçerik"  style={{ minWidth: '12rem' }} />
+                        <Column field="msgdata" header="İçerik"  style={{ minWidth: '12rem' }} />
 
-                        <Column field="topic" header="Gönderilen"  style={{ minWidth: '12rem' }} />
+                        <Column header="Gönderilen"  style={{ minWidth: '10rem' }} body={usersType}  />
+                        <Column field="telephone" header="Telefon"  style={{ minWidth: '12rem' }} />
 
                         
-
+                        
                        
-                        <Column header="Gönderilme Tarihi" filterField="date" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate}  />
+                        <Column header="Gönderilme Tarihi"  style={{ minWidth: '10rem' }} body={dateBodyTemplate}  />
                         
                         
 
 
-                        <Column field="is_checked" header="Aktif" dataType="boolean" bodyClassName="text-center" style={{ minWidth: '8rem' }} body={switchTemplate}  />
 
 
 
@@ -539,7 +522,7 @@ var xx =  formatingDate(value);
                 <div className="card">
                 <div className="grid formgrid">
                         <div className="col-12 mb-2 lg:col-4 lg:mb-0">
-                            <h5>Bildirim Gönderme</h5>
+                            <h5>Sms Gönderme</h5>
                         </div>
                        
                       
@@ -548,10 +531,7 @@ var xx =  formatingDate(value);
 
                         </div>
                     <div className="p-fluid formgrid grid">
-                        <div className="field col-12 md:col-6">
-                            <label >Başlık</label>
-                            <InputText  value={title} id="title" type="text" onChange={(e)=> setTitle(e.target.value)}/>
-                        </div>
+                       
 
 
                         <div className="field col-12 md:col-12">
@@ -562,15 +542,10 @@ var xx =  formatingDate(value);
 
                         
 
-                        <div className="field col-12 md:col-6">
-                            <label >Gönderim Şekli</label>
-                            <Dropdown id="type" value={dropdownItem} onChange={(e) => setDropdownItem(e.value)} options={dropdownItems} optionLabel="name" placeholder="Seçiniz"></Dropdown>
-                        </div>
+                      
 
                         {
-                            dropdownItem == null ?
-<div className="field col-12 md:col-12"></div> :
-                            dropdownItem.code == "tc" ? 
+                          
                             
                              <div className="field col-12 md:col-12">
                             <label >Kullanıcı Arayınız</label>
@@ -584,7 +559,7 @@ var xx =  formatingDate(value);
                         </div>
                             
 
-                        </div> : <div className="field col-12 md:col-12"></div> 
+                        </div>
                         }
 
                         <div className="field col-12 md:col-12"> 
@@ -603,7 +578,7 @@ var xx =  formatingDate(value);
 </div>
                         
 <div className="field col-12 md:col-4"> 
-<Button type="button"  label="Gönder" outlined onClick={() =>sendNotif()} />
+<Button type="button"  label="Gönder" outlined onClick={() =>sendSms()} />
 </div>
 
 
@@ -627,7 +602,7 @@ var xx =  formatingDate(value);
 <Dialog  visible={sendnotifsucces} onHide={() => setsendnotifsucces(false)} style={{ width: '350px' }} modal footer={DialogFooterSuccesProduct}>
                         <div className="flex align-items-center justify-content-center">
                                 <i className="pi pi-thumbs-up mr-3" style={{ fontSize: '2rem' }} />
-                                <span>Bildirim Başarıyla Gönderilmiştir</span>
+                                <span>Sms Başarıyla Gönderilmiştir</span>
                             </div>
                         </Dialog>
 
@@ -646,7 +621,7 @@ var xx =  formatingDate(value);
     );
 };
 
-export default Socials;
+export default SendSms;
 
 
 

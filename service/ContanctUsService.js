@@ -25,6 +25,11 @@ export const ContactUsService = {
             .then((res) => res.json())
             .then((d) => d);
     },
+    getSms(token) {
+        return fetch(`${baseUrl}/sms`, { headers: { 'Cache-Control': 'no-cache', "Authorization": `Bearer ${token}` } })
+            .then((res) => res.json())
+            .then((d) => d);
+    },
     getfaq(code,token) {
         return fetch(`${baseUrl}/faq?code=${encodeURIComponent(code)}`, { headers: { 'Cache-Control': 'no-cache', "Authorization": `Bearer ${token}` } })
             .then((res) => res.json())
