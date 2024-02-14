@@ -61,6 +61,8 @@ const Request = () => {
     const [deleteconfirm, setdeleteconfirm] = useState(false);
     const [deleteidoption, setdeleteidoption] = useState(null);
 
+    const [deleteconfirmproposal, setdeleteconfirmproposal] = useState(false);
+    const [deleteidproposal, setdeleteidproposal] = useState(null);
     const dropdownItemsproposalTypes = [
         { name: 'Teklif Sürecinde', code: 'proposed' },
         { name: 'Reddedildi', code: 'denied' },
@@ -271,7 +273,8 @@ const Request = () => {
             }).then(()=>{
                 BaseService.get(url,token).then((data) => {
                 if(data.succes){
-                getservices();
+                    getrequest();
+                    
 
                 }else{
                 showalert(data);
@@ -323,7 +326,7 @@ const Request = () => {
         }).then(()=>{
             BaseService.deletewithbody(url,body,token).then((data) => {
                     if(data.succes){
-                    getservices();
+                        getrequest();
                     setLoading2(false);
 
                     }else{
@@ -482,7 +485,74 @@ const addproposal= async () => {
   
       }
  
+      const confirmationDialogFooterDeleteProposal = (
+        <>
+            <Button type="button" label="Hayır" icon="pi pi-times" onClick={() => setdeleteconfirmproposal(false)} text />
+            <Button type="button" label="Evet" icon="pi pi-check" onClick={() => deleteproposal()} text autoFocus />
+        </>
+    );
+    const deleteproposal = async () => {
+        setdeleteconfirmproposal(false);
+        setLoading2(true);
 
+
+      
+        
+        var token = "";
+        const url = `${baseUrl}/proposal`;
+        var deletelist = [];
+        deletelist.push(deleteidproposal);
+        var body = {};
+         body  = JSON.stringify({
+           id : deletelist
+                  
+               } )
+
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+            BaseService.deletewithbody(url,body,token).then((data) => {
+                    if(data.succes){
+                        getrequest();
+                    setLoading2(false);
+
+                    }else{
+                showalert(data);
+                   setLoading2(false);
+    
+    
+                    }
+                
+                }) // Manipulate the data retrieved back, if we want to do something with it
+                .catch(message =>  {
+                    showalert({
+                        "succes" : false,
+                        "error" : message.toString()
+                        
+                    });
+                    setLoading2(false);
+                } ) ;
+         })
+         
+      
+          }
+    const deleteTemplateProposal = (rowData) => {
+          
+        return   <div>
+            <Button label="Sil" icon="pi pi-trash" severity="danger" onClick={() => { 
+            setdeleteidproposal(rowData.id);
+           setdeleteconfirmproposal(true); 
+            }} />
+                        <Dialog header="Silme İşlemi Onayı" visible={deleteconfirmproposal} onHide={() => setdeleteconfirmproposal(false)} style={{ width: '350px' }} modal footer={confirmationDialogFooterDeleteProposal}>
+                            <div className="flex align-items-center justify-content-center">
+                                <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                                <span>Silmek İstediğinize Emin Misiniz?</span>
+                            </div>
+                        </Dialog>
+        </div>
+        
+        ;
+    };
   
     function formatingDate(string){
         var options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -755,7 +825,7 @@ var xx =  formatingDate(value);
         var body = {};
         if(adminnote == null || adminnote == ""){
             body = JSON.stringify({
-                "message" : "Teklifiniz Oluşturuldu.Teklif Detaylarınıza Geçmiş Sigorta Sorgularım bölümünden ulaşabilirsiniz.",
+                "message" : "Teklifiniz Oluşturuldu.Teklif Detaylarınıza Geçmiş Sigorta Sorgularım bölümünden ulaşabilirsiniz.Teklifi onaylamak ve puan kazanmak için uygulama üzerinden veya 05414884802 telefon numarası üzerinden iletişime geçebilirsiniz.",
     "userId" : creteduser.id
             } );
         }else{
@@ -1143,6 +1213,7 @@ var xx =  formatingDate(value);
                         <Column header="Oluşturulma Tarihi" filterField="createdAt" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate}  />
 
                         <Column field="is_checked" header="Aktif" dataType="boolean" bodyClassName="text-center" style={{ minWidth: '8rem' }} body={switchTemplate}  />
+                        <Column field="id" header="Teklifi Sil"  style={{ minWidth: '8rem' }} body={deleteTemplateProposal}  />
 
                     </DataTable>
                     <Dialog header="Teklif Durumunu Güncelle" visible={proposaltypedialog} onHide={() => setproposaltypedialog(false)} style={{ width: '350px' }} modal footer={DialogFooterProposalType}>
