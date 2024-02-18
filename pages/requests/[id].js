@@ -705,7 +705,7 @@ var xx =  formatingDate(value);
         var token = "";
         var body = {};
         body = JSON.stringify({
-            "status" : "accepted",
+            "status" : "proposed",
             "id" : id,
             "from_admin" : true
 
