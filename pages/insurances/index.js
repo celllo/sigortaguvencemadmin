@@ -593,6 +593,7 @@ var xx =  formatingDate(value);
 
                         <Column header="Oluşturulma Tarihi"  dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate} />
                         <Column field="id" header="Sigorta Durumu"  body={statusTypeBodyTemplate} />
+                        
 
                         <Column field="id" header="Güncelle"  bodyClassName="text-center" style={{ minWidth: '8rem' }} body={updateinsuranceypetemplate}  />
                         <Column field="id" header="Sigorta Dosyası"  bodyClassName="text-center" style={{ minWidth: '8rem' }} body={pdfTemplate}  />

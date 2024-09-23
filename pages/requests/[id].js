@@ -42,6 +42,9 @@ const Request = () => {
     const [serviceuser, setServiceuser] = useState();
     const [creteduser, setCreateduser] = useState();
 
+    const [car, setCar] = useState();
+    const [carid, setCarId] = useState();
+
 
 
     const [answers, setAnswers] = useState([]);
@@ -134,6 +137,8 @@ const Request = () => {
          if(object.succes){
             setRequest(object.data);
             setService(object.data.service);
+            setCarId(object.data.carId);
+
             setServiceuser(object.data.userCreatedFor);
             setCreateduser(object.data.createdUser);
 
@@ -145,6 +150,9 @@ const Request = () => {
     
             
              setLoading(false);
+             if(object.data.carId != null){
+                getcar(object.data.carId);
+             }
     
              }else{
             showalert(object);
@@ -211,6 +219,53 @@ const Request = () => {
          
        
           }
+
+          const getcar = async (newcarid) => {
+       
+            setLoading(true);
+            var token = "";
+            user.getIdToken().then(function(idToken) {  
+               token =  idToken;
+            }).then(()=>{
+               const url = `${baseUrl}/car/${encodeURIComponent(newcarid)}`;
+       
+               BaseService.get(url,token).then((object) => {
+              //console.log(object.data);
+                if(object.succes){
+                    const carlist = [];
+                    carlist[0] = object.data
+                   setCar(carlist);
+       
+       
+                    
+           
+                   
+                    setLoading(false);
+           
+                    }else{
+                   showalert(object);
+                   setLoading(false);
+           
+           
+                    }
+           
+               
+            }).catch((message) => {
+               setLoading(false);
+       
+               showalert({
+                   "succes" : false,
+                   "error" : message.toString()
+                   
+               });
+               // console.log(error);
+           
+           
+            }); 
+           });
+             
+           
+              }
        
      
 
@@ -975,6 +1030,45 @@ var xx =  formatingDate(value);
 
 
    
+    const carmodelBodyTemplate = (rowData) => {
+        if(rowData.carmodel == null){
+            return <label  ></label> ;
+        }
+        return <label  >{rowData.carmodel.name}-{rowData.carmodel.code}</label> ;
+    };
+
+    const carmodeltypeBodyTemplate = (rowData) => {
+        if(rowData.carmodeltype == null){
+            return <label  ></label> ;
+        }
+        return <label  >{rowData.carmodeltype.name}-{rowData.carmodeltype.code}</label> ;
+    };
+
+    const carFuelBodyTemplate = (rowData) => {
+        if(rowData.carfueltype == null){
+            return <label  ></label> ;
+        }
+        return <label  >{rowData.carfueltype.name}</label> ;
+    };
+
+    const carusagetypeBodyTemplate = (rowData) => {
+        if(rowData.carusagetype == null){
+            return <label  ></label> ;
+        }
+        return <label  >{rowData.carusagetype.name}-{rowData.carusagetype.code}</label> ;
+    };
+
+    const imageTemplate = (rowData) => {
+        if(rowData.image_path == null){
+            return <label></label>
+        }
+       return <a href={`${fileUrl}${rowData.image_path}`} target="_blank">
+         <Button style={{margin: "5px"}} type="button" label="Görüntüle">
+
+</Button>  
+       </a>
+       
+    };
 
    
     const rowExpansionTemplate = (rowData) => {
@@ -1084,6 +1178,59 @@ var xx =  formatingDate(value);
                 </div>
             </div>
             </div>
+
+            {
+                car == null ? <div></div> : 
+                <div className="grid">
+                <div className="col-12">
+                        <div className="card">
+        <div className="grid formgrid">
+                                <div className="col-12 mb-2 lg:col-2 lg:mb-0">
+                                    <h5>Araba Bilgileri</h5>
+                                </div>
+                        
+                            </div>
+                            <h1></h1>
+        
+        
+                            <DataTable value={car} 
+                             
+                             className="p-datatable-gridlines"
+                             showGridlines
+                             dataKey="id"
+                             loading={loading}
+                             responsiveLayout="scroll"
+                             emptyMessage="Araba Bilgisi Bulunamadı."
+                            >
+                           
+                                
+                                <Column field="plate" header="Plaka"/>
+                                <Column field="serialno" header="Seri No" />
+                                <Column field="chasisno" header="Şase No"/>
+                                <Column field="motorno" header="Motor No"/>
+                                <Column header="Tescil Tarihi" field="tescildate" dataType="date" style={{ minWidth: '10rem' }}  body={dateBodyTemplate}   />
+
+                                <Column field="id" header="Araba Markası"  body={carmodelBodyTemplate} />
+                                <Column field="id" header="Araba Modeli"  style={{ minWidth: '20rem' }} body={carmodeltypeBodyTemplate} />
+                                <Column field="id" header="Yakıt Tipi"  body={carFuelBodyTemplate} />
+                                <Column field="id" header="Araç Cinsi"  body={carusagetypeBodyTemplate} />
+                                
+                                <Column field="usagesubstances" header="Kullanım Kodu"/>
+                                <Column field="id" header="Araç Ruhsatı"  body={imageTemplate}  />
+
+                                
+        
+                                
+        
+                                <Column header="Oluşturulma Tarihi" field="createdAt" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate}  />
+        
+        
+        
+                            </DataTable>
+                        </div>
+                    </div>
+                    </div>
+            }
 
             <div className="col-12">
                 <div className="card">

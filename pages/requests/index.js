@@ -435,6 +435,19 @@ var xx =  formatingDate(value);
         
     };
 
+    const carInfoBodyTemplate = (rowData) => {
+        if(rowData.carId != null){
+            return <label>Var</label> ;
+    
+           }else{
+            return <label> Yok</label> ;
+    
+           }
+
+         
+        
+    };
+
     const serviceTypeBodyTemplate = (rowData) => {
        if(rowData.service != null){
         return <label>{rowData.service.name}</label> ;
@@ -614,8 +627,10 @@ var xx =  formatingDate(value);
                         <Column field="id" header="İstek Oluşturan Bilgiler"  body={requestcreateduserphoneBodyTemplate} />
 
                         <Column field="id" header="Sigorta Türü"  body={serviceTypeBodyTemplate} />
+                        <Column field="id" header="Araç Bilgisi"  body={carInfoBodyTemplate} />
                         <Column field="id" header="Teklif Durumu"  body={statusTypeBodyTemplate} />
                         <Column field="id" header="Durumu Güncelle"  body={updaterequesttypetemplate} />
+
                         {/* <Column field="id" header="Teklif Oluşturuldu Bildirimi Gönder"  body={notifTemplate} /> */}
 
                         
