@@ -46,7 +46,8 @@ const AppMenu = () => {
                 { label: 'Sigorta Oluştur', icon: 'pi pi-fw pi-plus', to: '/createinsurance' },
                 { label: 'Kabul Edilen Teklifler', icon: 'pi pi-fw pi-thumbs-up-fill', to: '/acceptedproposals' },
                 { label: 'Sigorta İptal İstekleri', icon: 'pi pi-fw pi-times-circle', to: '/cancelinsurances' },
-
+                { label: 'Araçlar', icon: 'pi pi-fw pi-car', to: '/cars' },
+                { label: 'Araç Ekle', icon: 'pi pi-fw pi-plus-circle', to: '/addcar' },
 
               
                 

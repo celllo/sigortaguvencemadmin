@@ -37,19 +37,14 @@ const LoseVehicles = () => {
 
     const [request, setRequest] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [expandedRows, setExpandedRows] = useState(null);
-    const [dropdownItemRequestStatus, setdropdownItemRequestStatus] = useState(  { name: 'İncelemede', code: 'inreview' },
+    const [dropdownItemRequestStatus, setdropdownItemRequestStatus] = useState(  { name: 'Aktif', code: true },
     );
 
 
     const dropdownItemsRequestTypes = [
-        { name: 'Teklif Sürecinde', code: 'proposed' },
-        { name: 'İncelemede', code: 'inreview' },
-        { name: 'Talep Geri Alındı', code: 'deleted' },
-        { name: 'Süreçte Değil', code: 'cannotprocess' },
-        { name: 'Reddedildi', code: 'denied' },
-        { name: 'Kabul Edildi', code: 'accepted' },
-        { name: 'Admin Tarafından Silindi', code: 'deletedbyadmin' }
+        { name: 'Aktif', code: true },
+        { name: 'Pasif', code: false },
+        
 
 
       
@@ -71,7 +66,7 @@ const LoseVehicles = () => {
 
     const clearFilter1 = () => {
         setGlobalFilterValue1("");
-        getrequests(0,"");
+        getrequests(0,"",dropdownItemRequestStatus.code);
         
      };
  
@@ -79,7 +74,7 @@ const LoseVehicles = () => {
          const value = e.target.value;
         
          setGlobalFilterValue1(value);
-         getrequests(page,value);
+         getrequests(page,value,dropdownItemRequestStatus.code);
      };
 
      const changePage = (newPage) => {
@@ -92,8 +87,17 @@ const LoseVehicles = () => {
 
         }
         setPage(parseInt(newPage));
-        getrequests(newPage,globalFilterValue1);
+        getrequests(newPage,globalFilterValue1,dropdownItemRequestStatus.code);
        }
+
+       const onTypeChange = (e) => {
+        setdropdownItemRequestStatus(e);
+        setPage(0);
+        getrequests(0,globalFilterValue1,e.code);
+
+       
+
+    };
 
        
 
@@ -101,7 +105,11 @@ const LoseVehicles = () => {
         return (
             <div className="flex justify-content-between">
                 <Button type="button" icon="pi pi-filter-slash" label="Temizle" outlined onClick={clearFilter1} />
-                
+                <div className="mb-2">
+                          <label >Sigorta Durumu </label>
+                            <Dropdown id="actiontype" value={dropdownItemRequestStatus} onChange={(e) => {
+                                onTypeChange(e.value)}} options={dropdownItemsRequestTypes} optionLabel="name" placeholder="Seçiniz"></Dropdown>
+                          </div>
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue1} onChange={onGlobalFilterChange1} placeholder="Sigorta Sahibi TC" />
@@ -110,14 +118,14 @@ const LoseVehicles = () => {
         );
     };
     
-    const getrequests = async (page,value) => {
+    const getrequests = async (page,value,type) => {
        
      setLoading(true);
      var token = "";
      user.getIdToken().then(function(idToken) {  
         token =  idToken;
      }).then(()=>{
-        const url = `${baseUrl}/vehiclelossrequest?identity=${encodeURIComponent(value)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}`;
+        const url = `${baseUrl}/vehiclelossrequest?identity=${encodeURIComponent(value)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}&is_checked=${encodeURIComponent(type)}`;
 
         BaseService.get(url,token).then((object) => {
         //console.log(object);
@@ -167,54 +175,7 @@ const LoseVehicles = () => {
       } , 3000);
     };
 
-    const sendNotif = async (identityNumber) => {
-       
-        var body = {};
-
-       
-            body = JSON.stringify({
-                "body" : "Teklif Detaylarınıza Geçmiş Sigorta Sorgularım bölümünden ulaşabilirsiniz.",
-    "title": "Teklifiniz Oluşturuldu",
-    "topic" : identityNumber
-            } );
-        
-        
-        var token = "";
-        user.getIdToken().then(function(idToken) {  
-           token =  idToken;
-        }).then(()=>{
-        fetch(`${baseUrl}/notifs`, {
-            method: "POST",
-             body: body,   
-            headers: { 'Cache-Control': 'no-cache','Content-Type': 'application/json', "Authorization": `Bearer ${token}` } })
-            .then((res) => res.json())
-                .then(data => {
-                    if(data.succes){
-                       
-    
-        
-                        }else{
-                            showalert({
-                                "succes" : false,
-                                "error" : "Bildirim Gönderilemedi",
-                                
-                            } );
-
-    
-        
-                        }
-                
-                }) // Manipulate the data retrieved back, if we want to do something with it
-                .catch(message => { 
-                    
-                    showalert({
-                        "succes" : false,
-                        "error" : "Bildirim Gönderilemedi",
-                        
-                    } );
-    
-                }) ; });
-      }
+  
 
   
       
@@ -223,7 +184,7 @@ const LoseVehicles = () => {
 
 
        
-        getrequests(0,globalFilterValue1);
+        getrequests(0,globalFilterValue1,dropdownItemRequestStatus.code);
 
         
 
@@ -232,64 +193,77 @@ const LoseVehicles = () => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-     /// is checked 
-     const switchTemplate = (rowData) => {
-       
-
-        return (
-            
-         <InputSwitch checked={rowData.is_checked} onChange={(e) =>{ 
-           
-
-            updateswitch(e.value,rowData.id);
-        }} />
-            
-        );
-    };
-
-    const updateswitch= async (newvalue,newid) => {
-        setLoading(true);
-
-            const url = `${baseUrl}/vehiclelossrequest/activepassive?id=${encodeURIComponent(newid)}&status=${encodeURIComponent(newvalue)}`;
-            
-    
-            var token = "";
-            user.getIdToken().then(function(idToken) {  
-               token =  idToken;
-            }).then(()=>{
-                BaseService.get(url,token).then((data) => {
-                if(data.succes){
-                    getrequests(page,globalFilterValue1);
-
-                }else{
-                showalert(data);
-               setLoading(false);
-
-
-                }
-               // setUploadedFile([data]);
-              })
-              .catch((message) => {
-                setLoading(false);
-
-                showalert({
-                    "succes" : false,
-                    "error" : message.toString()
-                    
-                });
-
-
-              }); 
-            });
-          
-    }
-
-
  
-    const onleadingCheckboxChange = (e) => {
-        setleadingcheckbox(e.checked);
-    
+    const updaterequesttypetemplate = (rowData) => {
+        return   <div>
+            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() =>{ setselectedrequestid(rowData.id); setrequesttypedialog(true)} } />
+            
+        </div>
+        
+        ;
     };
+    const updaterequesttype = async () => {
+        setrequesttypedialog(false);
+        if(dropdownItemRequestType == null){
+            showalert(
+               {
+                    "succes" : false,
+                    "error" : "Lütfen İstek Durumu Seçiniz",
+                    
+                } 
+            );
+            return;
+        }
+       
+        setLoading(true);
+        var token = "";
+       
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+            const url = `${baseUrl}/vehiclelossrequest/activepassive?id=${encodeURIComponent(selectedrequestid)}&status=${encodeURIComponent(dropdownItemRequestType.code)}`;
+            BaseService.get(url,token).then((data) => {
+                console.log(data);
+                console.log(url);
+
+
+                    if(data.succes){
+                        setDropdownItemRequestType(null);
+
+                        getrequests(page,globalFilterValue1,dropdownItemRequestStatus.code);
+
+    
+                        setLoading(false);
+
+                        }else{
+                            showalert({
+                            "succes" : false,
+                            "error" : data.message
+                            
+                        });
+                        setLoading(false);
+
+    
+        
+                        }
+                
+                }) // Manipulate the data retrieved back, if we want to do something with it
+                .catch(message => { 
+                    setLoading(false);
+    
+                    
+                    showalert({
+                        "succes" : false,
+                        "error" : message.toString()
+                        
+                    });
+    
+                }) ; 
+            
+            });
+      }
+
+  
 
 
 
@@ -321,47 +295,11 @@ var xx =  formatingDate(value);
     const dateBodyTemplate = (rowData) => {
         return formatDate(rowData.createdAt);
     };
-    const dateEndBodyTemplate = (rowData) => {
-        return formatDate(rowData.endDate);
-    };
-    const deleteTemplate = (rowData) => {
-        return   <Button type="button" icon="pi pi-filter-slash" label="Temizle" outlined onClick={clearFilter1} />
-        ;
-    };
 
-    const dateFilterTemplate = (options) => {
-        return <Calendar value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" mask="99/99/9999" />;
-    };
 
-    const detayTemplate = (rowData) => {
-       return <Button style={{margin: "5px"}} type="button" label="Teklif Oluştur" onClick={() => {
-                    
-            router.push(`/requests/${rowData.id}`);
-                           }} />
-    };
-    const notifTemplate = (rowData) => {
-        return <Button style={{margin: "5px"}} type="button" label="Bildirim Gönder" onClick={() => {
-                     
-             sendNotif(rowData.createdUser.identityNumber);
-                            }} />
-     };
-    const proposalTypeBodyTemplate = (rowData) => {
-        switch(rowData.status) {
-        
-            
-        case  "proposed":
-        return <label>Teklif Sürecinde</label> ;
-        case "denied":
-        return <label  >Reddedildi</label> ;
-        case "accepted":
-        return <label  >Kabul Edildi</label> ;
-        case "deletedbyadmin":
-        return <label  >Admin Tarafından Silindi</label> ;
-        default:
-        return <label>Teklif Sürecinde</label> ;
-          }
-        
-    };
+  
+   
+ 
 
    
 
@@ -373,71 +311,32 @@ var xx =  formatingDate(value);
 
   
 
-    const verifiedBodyTemplate = (rowData) => {
-        return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.is_checked, 'text-pink-500 pi-times-circle': !rowData.is_checked })}></i>;
-    };
-
-    const verifiedFilterTemplate = (options) => {
-        return <TriStateCheckbox value={options.value} onChange={(e) => options.filterCallback(e.value)} />;
-    };
+  
 
    
 
 
 
 
-    const imageBodyTemplate = (rowData) => {
-        return <img src={`${fileUrl}${rowData.path}`} onError={(e) => (e.target.src = `${errorImageUrl}`)} alt={rowData.path} className="shadow-2" width={100} />;
-    };
-
-
-    const forwhoTypeBodyTemplate = (rowData) => {
-        switch(rowData.forwho) {
-            case "me":
-             return <label  >Kendim İçin</label> ;
-            
-            case  "other":
-                return <label>Başkası İçin</label> ;
-         
-            default:
-                return <label>Kendim İçin</label> ;
-          }
-        
-    };
+  
 
     const statusTypeBodyTemplate = (rowData) => {
-        switch(rowData.status) {
-            case "inreview":
-            return <label  >İncelemede</label> ;
+        switch(rowData.is_checked) {
+            case true:
+            return <label  >Aktif</label> ;
             
-        case  "proposed":
-        return <label>Teklif Sürecinde</label> ;
-        case "denied":
-        return <label  >Reddedildi</label> ;
-        case "accepted":
-        return <label  >Kabul Edildi</label> ;
-        case "deleted":
-        return <label  >Talep Geri Alındı</label> ;
-        case "deletedbyadmin":
-        return <label  >Admin Tarafından Silindi</label> ;
+        case  false:
+        return <label>Pasif</label> ;
+       
         default:
-        return <label>İncelemede</label> ;
+        return <label>Aktif</label> ;
           }
 
          
         
     };
 
-    const serviceTypeBodyTemplate = (rowData) => {
-       if(rowData.service != null){
-        return <label>{rowData.service.name}</label> ;
-
-       }else{
-        return <label></label> ;
-
-       }
-        
-    };
+   
 
 
     const requestusernoBodyTemplate = (rowData) => {
@@ -461,32 +360,32 @@ var xx =  formatingDate(value);
    
 
    
-     const rowExpansionTemplate = (rowData) => {
+    //  const rowExpansionTemplate = (rowData) => {
         
-        return (
-            <div className="orders-subtable">
-                 <div className="grid formgrid">
+    //     return (
+    //         <div className="orders-subtable">
+    //              <div className="grid formgrid">
                
                         
                       
                  
                     
-                    {rowData.vehicle == null ?
-                <div className="col-12 mb-2 lg:col-4 lg:mb-0">
-                <></>
-            </div> :
-                <DataTable value={rowData.vehicle.vehicleparts} responsiveLayout="scroll">
-                    <Column field="name" header="Parça Adı"  ></Column>
+    //                 {rowData.vehicle == null ?
+    //             <div className="col-12 mb-2 lg:col-4 lg:mb-0">
+    //             <></>
+    //         </div> :
+    //             <DataTable value={rowData.vehicle.vehicleparts} responsiveLayout="scroll">
+    //                 <Column field="name" header="Parça Adı"  ></Column>
 
-                    <Column field="selectedStatusName" header="Durumu"  ></Column>
+    //                 <Column field="selectedStatusName" header="Durumu"  ></Column>
                    
 
                    
-                </DataTable>  }
-            </div>
-            </div>
-        );
-    };
+    //             </DataTable>  }
+    //         </div>
+    //         </div>
+    //     );
+    // };
    
 
   
@@ -527,6 +426,10 @@ var xx =  formatingDate(value);
                         <Column field="tramer" header="Tramer"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
                         <Column field="modelYear" header="Aracın Kilometresi"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
                         <Column field="priceLoss" header="Değer Kaybı"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
+                        <Column field="id" header="İstek Durumu"  body={statusTypeBodyTemplate} />
+                        <Column field="id" header="İstek Durumunu Güncelle"  body={updaterequesttypetemplate} />
+
+                        
 
 
                         

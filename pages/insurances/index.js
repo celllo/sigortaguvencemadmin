@@ -437,16 +437,27 @@ var xx =  formatingDate(value);
             "id" : selectedinsuranceid,
             "status" : dropdownItemInsuranceType.code,          
         } );
+        console.log(body);
         user.getIdToken().then(function(idToken) {  
            token =  idToken;
         }).then(()=>{
             const url = `${baseUrl}/insurance`;
             BaseService.put(url,body,token).then((data) => {
+                console.log(data);
+
                     if(data.succes){
                         setDropdownItemInsuranceType(null);
 
+                        if(startcalendarValue == null || endcalendarValue == null){
+                            getinsurances(page,globalFilterValue1,dropdownItemInsuranceStatus.code,"","");
+                
+                        }else{
+                            getinsurances(page,globalFilterValue1,dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue);
+
+                
+                        }
+
     
-                        getinsurances(page,globalFilterValue1,dropdownItemInsuranceStatus.code);
                         
                         }else{
                             showalert({

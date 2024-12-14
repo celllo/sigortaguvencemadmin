@@ -64,21 +64,37 @@ const Services = () => {
         { name: 'Çoklu Seçme', code: 'multiselect' }
 
     ];
+    const [newname, setNewName] = useState("");
    
 
     const [question, setQuestion] = useState("");
     const [subtitle, setSubtitle] = useState("");
     const [information, setInformation] = useState("");
     const [hinttext, setHintText] = useState("");
+    const [path, setNewPath] = useState("");
+
     const [leadingcheckbox, setleadingcheckbox] = useState(false);
+
+    const [leadingcheckboxupdatequestion, setleadingcheckboxupdatecheckbox] = useState(false);
+
 
 
     const [errorvisible, seterrorvisible] = useState(false);
+
+
     const [error, seterror] = useState(null);
 
 
     const [optionname, setoptionname] = useState("");
     const [optioninformation, setoptioninformation] = useState("");
+    const [optionray, setoptionray] = useState(null);
+    const [optionallianz, setoptionrayallian] = useState(null);
+
+    const [ordervisible, setordervisible] = useState(false);
+    const [selectedorderid, setselectedorderid] = useState(false);
+
+    const [order, setorder] = useState(false);
+
 
 
     const clearFilter1 = () => {
@@ -223,7 +239,75 @@ const Services = () => {
             
          }
       }, [router.isReady]);
+      //updatename
 
+      const updatename = async () => {
+        if((newname == null) || newname == ""){
+            showalert(
+                {
+                    "succes" : false,
+                    "error" : "Lütfen İsim Giriniz",
+                    
+                } 
+            );
+            return;
+        }
+       
+        setLoading(true);
+        var body = {};
+    
+      
+            body = JSON.stringify({
+               "id": id,
+             "name" : newname,
+               
+               
+            } )
+    
+     
+    
+        
+            var token = "";
+            user.getIdToken().then(function(idToken) {  
+               token =  idToken;
+            }).then(()=>{
+        const url = `${baseUrl}/service`;
+        BaseService.put(url,body,token).then((object) => {
+            // console.log(object);
+             if(object.succes){
+                        
+                        
+                        setLoading(false);
+                        getservices();
+    
+        
+                
+        
+                 }else{
+                    showalert(object);
+                    setLoading(false);
+        
+        
+                 }
+        
+            
+         }).catch((message) => {
+            setLoading(false);
+    
+            showalert({
+                "succes" : false,
+                "error" : message.toString()
+                
+            });
+            // console.log(error);
+        
+        
+         });
+            
+            });
+         
+      
+          }
 
       //update image 
 
@@ -458,6 +542,63 @@ const Services = () => {
          
       
           }
+
+
+          const bedefaultTemplateQuestion = (rowData) => {
+          
+            return   <div>
+                <Button label="Default Cevap Yap"   onClick={() => { 
+               updateoption(rowData.id) 
+                }} />
+                           
+            </div>
+            
+            ;
+        };
+
+          const updateoption = async (id) => {
+            setLoading2(true);
+    
+    
+          
+            
+            var token = "";
+            const url = `${baseUrl}/option/default`;
+           
+            var body = {};
+             body  = JSON.stringify({
+               "id" : id
+                      
+                   } )
+    
+            user.getIdToken().then(function(idToken) {  
+               token =  idToken;
+            }).then(()=>{
+                BaseService.put(url,body,token).then((data) => {
+                        if(data.succes){
+                        getservices();
+                        setLoading2(false);
+    
+                        }else{
+                    showalert(data);
+                       setLoading2(false);
+        
+        
+                        }
+                    
+                    }) // Manipulate the data retrieved back, if we want to do something with it
+                    .catch(message =>  {
+                        showalert({
+                            "succes" : false,
+                            "error" : message.toString()
+                            
+                        });
+                        setLoading2(false);
+                    } ) ;
+             })
+             
+          
+              }
     const deleteTemplateoption = (rowData) => {
           
         return   <div>
@@ -658,6 +799,8 @@ const addoption = async () => {
             "name": optionname,
            "servicequestionId": addselectedquestion.id, 
           "information": optioninformation,
+          "allianzOtherCode" : optionallianz,
+          "rayOtherCode" : optionray
            
            
         } )
@@ -675,6 +818,9 @@ const addoption = async () => {
          if(object.succes){
                     setoptionname("");
                     setoptioninformation("");
+                    setoptionray("");
+                    setoptionrayallian("");
+
                     setaddselectedquestion(null);
                    
 
@@ -776,6 +922,7 @@ const addquestion = async () => {
 
 
   if( dropdownItem.code == "text"){
+
     body = JSON.stringify({
         "question": question,
        "surveyId": service.survey.id,
@@ -784,22 +931,43 @@ const addquestion = async () => {
        "optional": leadingcheckbox,
        "questionType": dropdownItem.code, 
        "servicequestiontypeId": dropdownItemTextField.id,
-       "hintText": hinttext,  
+       "hintText": hinttext,
+       "isExtra": leadingcheckboxupdatequestion,  
               
            } )
   }else{
-    body = JSON.stringify({
-        "question": question,
-       "surveyId": service.survey.id,
-       "subtitle": subtitle,
-       "information": information,
-       "optional": leadingcheckbox, 
-       "questionType": dropdownItem.code, 
-       "hintText": hinttext,  
+    if(path == null){
+        body = JSON.stringify({
+            "question": question,
+           "surveyId": service.survey.id,
+           "subtitle": subtitle,
+           "information": information,
+           "optional": leadingcheckbox, 
+           "questionType": dropdownItem.code, 
+           "hintText": hinttext,  
+           "isExtra": leadingcheckboxupdatequestion,  
 
-              
-              
-           } )
+                  
+                  
+               } )
+
+    }else{
+        body = JSON.stringify({
+            "question": question,
+           "surveyId": service.survey.id,
+           "subtitle": subtitle,
+           "information": information,
+           "optional": leadingcheckbox, 
+           "questionType": dropdownItem.code, 
+           "hintText": hinttext, 
+           "path" :path,
+           "isExtra": leadingcheckboxupdatequestion,  
+
+                  
+                  
+               } )
+    }
+   
 
   }
        
@@ -822,6 +990,8 @@ const addquestion = async () => {
                     setQuestion("");
                     setInformation("");
                     setHintText("");
+                    setNewPath("");
+
 
                     getservices();
                     setLoading2(false);
@@ -873,6 +1043,16 @@ var xx =  formatingDate(value);
 
     const onleadingCheckboxChange = (e) => {
         setleadingcheckbox(e.checked);
+    
+    };
+    const onleadingCheckboxChangeUpdateQuestion = (e) => {
+        setleadingcheckboxupdatecheckbox(e.checked);
+        if(e.checked){
+            setleadingcheckbox(true);
+
+        }else{
+            setleadingcheckbox(false);
+        }
     
     };
   
@@ -970,6 +1150,100 @@ var xx =  formatingDate(value);
         return <i className={classNames('pi', { 'text-green-500 pi-check-circle': !rowData.optional, 'text-pink-500 pi-times-circle': rowData.optional })}></i>;
     };
 
+    const optionalBodyQuestionTemplate = (rowData) => {
+        return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.isExtra, 'text-pink-500 pi-times-circle': !rowData.isExtra })}></i>;
+    };
+
+
+    const optionDefaultTemplate = (rowData) => {
+        return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.defaultAnswerxId != null, 'text-pink-500 pi-times-circle': rowData.defaultAnswerxId == null })}></i>;
+    };
+
+
+    //Order Güncelleme
+
+    const DialogFooterOrder = (
+        <>
+            <Button type="button" label="Vazgeç" icon="pi pi-times" onClick={() => setordervisible(false)} text />
+            <Button type="button" label="Güncelle" icon="pi pi-check" onClick={() => updateorder()} text autoFocus />
+        </>
+    );
+
+    const updateordertemplate = (rowData) => {
+        return   <div>
+            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() =>{ setselectedorderid(rowData.id); setordervisible(true)} } />
+            
+        </div>
+        
+        ;
+    };
+    const updateorder = async () => {
+        setordervisible(false);
+        if(order == null || order == ""){
+            showalert(
+               {
+                    "succes" : false,
+                    "error" : "Lütfen Order Giriniz",
+                    
+                } 
+            );
+            return;
+        }
+       
+        setLoading(true);
+        var token = "";
+        var body = {};
+        body  = JSON.stringify({
+          id : selectedorderid,
+          order: order
+                 
+              } )
+       
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+            const url = `${baseUrl}/question`;
+            BaseService.put(url,body,token).then((data) => {
+                
+                
+
+
+                    if(data.succes){
+                        setorder("");
+
+                        getservices();
+
+    
+                        setLoading(false);
+
+                        }else{
+                            showalert({
+                            "succes" : false,
+                            "error" : data.message
+                            
+                        });
+                        setLoading(false);
+
+    
+        
+                        }
+                
+                }) // Manipulate the data retrieved back, if we want to do something with it
+                .catch(message => { 
+                    setLoading(false);
+    
+                    
+                    showalert({
+                        "succes" : false,
+                        "error" : message.toString()
+                        
+                    });
+    
+                }) ; 
+            
+            });
+      }
+
 
 
    
@@ -1015,6 +1289,18 @@ var xx =  formatingDate(value);
                             
                         <InputText id="optioninfo" value={optioninformation} type="text" onChange={(e)=> setoptioninformation(e.target.value)}/>
                         </div>
+
+                        <div  className="col-12 mb-2"> 
+                            <label >Ray Sigorta Kodu </label>
+                            
+                        <InputText id="optioninfo" value={optionray} type="text" onChange={(e)=> setoptionray(e.target.value)}/>
+                        </div>
+
+                        <div  className="col-12 mb-2"> 
+                            <label >Allianz Sigorta Kodu </label>
+                            
+                        <InputText id="optioninfo" value={optionallianz} type="text" onChange={(e)=> setoptionrayallian(e.target.value)}/>
+                        </div>
                         
                        
                           </div>
@@ -1033,6 +1319,13 @@ var xx =  formatingDate(value);
                 <DataTable value={rowData.options} responsiveLayout="scroll">
                     <Column field="name" header="Ad" ></Column>
                     <Column field="information" header="Açıklama" ></Column>
+                    <Column field="information" header="Açıklama" ></Column>
+                    <Column field="rayOtherCode" header="Ray Sigorta Kodu" ></Column>
+                    <Column field="allianzOtherCode" header="Allianz Sigorta Kodu" ></Column>
+                    <Column field="id" header="Default Mu?"  style={{ minWidth: '8rem' }} body={optionDefaultTemplate}  />
+
+                    <Column field="id" header="Seçeneği Default Değer Yap"  style={{ minWidth: '8rem' }} body={bedefaultTemplateQuestion}  />
+
                     <Column field="id" header="Seçeneği Sil"  style={{ minWidth: '8rem' }} body={deleteTemplateoption}  />
                    
                 </DataTable>  }
@@ -1065,6 +1358,35 @@ var xx =  formatingDate(value);
 </div>
 </div>
 </div>
+<div className="col-12">
+
+<div className="card">
+                <div className="grid formgrid">
+                    
+                <div className="p-fluid formgrid grid">
+
+<div className="field col-12 md:col-8">
+                            <h5>İsim Güncelleme</h5>
+                        </div>
+
+                        <div className="field col-12 md:col-12">
+                        <label htmlFor="subtitle">Sigortanın Yeni İsmi</label>
+
+                            <InputText value={newname} id="sds" type="text"onChange={(e)=> setNewName(e.target.value)} />
+                        </div>
+
+
+                        
+<div className="field col-12 md:col-4"> 
+<Button type="button"  label="İsmi Güncelle" outlined onClick={() =>updatename()} />
+</div>
+</div>
+
+
+                </div>
+</div>
+</div>
+
 
 <div className="card">
                 <div className="grid formgrid">
@@ -1084,9 +1406,7 @@ var xx =  formatingDate(value);
                     </Dropzone>
 </div>
 
-<div className="field col-12 md:col-4"> 
 
-</div>
                         
 <div className="field col-12 md:col-4"> 
 <Button type="button"  label="Resmi Güncelle" outlined onClick={() =>uploadFile()} />
@@ -1132,13 +1452,23 @@ var xx =  formatingDate(value);
                             <label htmlFor="desc">Soru Açıklaması</label>
                             <InputText value={information} id="desc" type="text"onChange={(e)=> setInformation(e.target.value)} />
                         </div>
-                        
-                          <div className="col-12 md:col-12">
+                        <div className="col-12 md:col-12">
+                            <div className="field-checkbox">
+                                <Checkbox inputId="checkOption1" name="option" value="leading" checked={leadingcheckboxupdatequestion} onChange={onleadingCheckboxChangeUpdateQuestion} />
+                                <label >Düzenleme Sorusu Mu?</label>
+                            </div>
+                        </div>
+                        {
+                            leadingcheckboxupdatequestion ?  
+                            <div> </div> : 
+                            <div className="col-12 md:col-12">
                             <div className="field-checkbox">
                                 <Checkbox inputId="checkOption1" name="option" value="leading" checked={leadingcheckbox} onChange={onleadingCheckboxChange} />
                                 <label >Soru Cevaplaması Zorunlu Değil?</label>
                             </div>
                         </div>
+                        }
+                          
                           <div className="field col-12 md:col-6">
                             <label >Soru Tipi</label>
                             <Dropdown id="type" value={dropdownItem} onChange={(e) => setDropdownItem(e.value)} options={dropdownItems} optionLabel="name" placeholder="Seçiniz"></Dropdown>
@@ -1151,9 +1481,16 @@ var xx =  formatingDate(value);
                             <div className="field col-12 md:col-6">
                             <label >Soru Yazı İçerik </label>
                             <Dropdown id="type" value={dropdownItemTextField} onChange={(e) => setdropdownItemTextField(e.value)} options={textfieldtype} optionLabel="name" placeholder="Seçiniz"></Dropdown>
-                        </div> : <div className="field col-12 md:col-12"></div> 
+                        </div> :
+                        dropdownItem.code == "singleselect" || dropdownItem.code == "multiselect" ? 
+                            
+                        <div className="field col-12 md:col-6">
+                        <label >Soru İstek Adresi </label>
+                        <InputText value={path} id="desc" type="text"onChange={(e)=> setNewPath(e.target.value)} />
+                    </div> : <div className="field col-12 md:col-12"></div> 
                         }
-                   
+                       
+                  
                             <div className="field col-12 md:col-6">
                             <label htmlFor="desc">İpucu Metni</label>
                             <InputText value={hinttext} id="desc" type="text"onChange={(e)=> setHintText(e.target.value)} />
@@ -1195,14 +1532,27 @@ var xx =  formatingDate(value);
                     </div>
                 </div>
             </div> 
+            
 
         <div className="grid">
         <div className="col-12">
                 <div className="card">
 <div className="grid formgrid">
+
+
+<Dialog  visible={ordervisible} onHide={() => setordervisible(false)} style={{ width: '350px' }}  modal footer={DialogFooterOrder} >
+<div className="field col-12 md:col-6">
+
+<label >Sıralama Seç</label>
+</div>
+           
+<InputNumber  value={order} onValueChange={(e) => setorder(e.value)}  mode="decimal" showButtons></InputNumber>
+</Dialog>
                         <div className="col-12 mb-2 lg:col-2 lg:mb-0">
                             <h5>Sorular</h5>
                         </div>
+
+
                 
                     </div>
                     <h1></h1>
@@ -1210,6 +1560,8 @@ var xx =  formatingDate(value);
 
                     <DataTable value={questions}  loading={loading} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)} responsiveLayout="scroll" rowExpansionTemplate={rowExpansionTemplate} dataKey="id" >
                         <Column expander style={{ width: '3em' }} />
+                        <Column field="order" header="Order"  />
+
                         <Column field="question" header="        Soru       "  />
                         <Column field="subtitle" header="Soru Alt Başlığı"  />
                         <Column field="information" header="Soru Açıklaması"  />
@@ -1217,13 +1569,16 @@ var xx =  formatingDate(value);
                         <Column field="id" header="Soru Yazı İçeriği Tipi"  body={questiontypenameBodyTemplate} />
                         <Column field="hintText" header="İpucu"  />
 
-                        <Column field="id" header="Cevaplamak Zorunlu Mu?"  body={optionalBodyTemplate} />
 
-                        
+                        <Column field="id" header="Cevaplamak Zorunlu Mu?"  body={optionalBodyTemplate} />
+                        <Column field="id" header="Düzenleme Sorusu Mu?"  body={optionalBodyQuestionTemplate} />
+                        <Column field="id" header="Soru Sıralaması" body={updateordertemplate} />
 
                         <Column header="Oluşturulma Tarihi" field="createdAt" dataType="date"  body={dateBodyTemplate}  />
                         <Column field="id" header="Kullanımda"   body={switchTemplate}  />
                         <Column field="id" header="Sil"   body={deleteTemplateQuestion}  />
+                        <Column field="path" header="Adres"    />
+
 
 
                         
