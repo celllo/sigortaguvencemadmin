@@ -442,7 +442,7 @@ var xx =  formatingDate(value);
         <div className="grid">
             <div className="col-12">
                 <div className="card">
-                    <h5>Daimi Mürtein İstekleri</h5>
+                    <h5>Daini Mürtehin İstekleri</h5>
                     <DataTable
                         value={request}
                         
