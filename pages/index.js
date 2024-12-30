@@ -10,7 +10,7 @@ import { CircularProgress, Alert } from '@mui/material';
 import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
 import { Chart } from 'primereact/chart';
-
+import CryptoJS from 'crypto-js';
 const inter = Inter({ subsets: ['latin'] })
 
  function Home() {
@@ -30,7 +30,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 
 
- 
+
 
 
    const textColor = documentStyle.getPropertyValue('--text-color');
@@ -530,6 +530,35 @@ const cleandata = ()=>{
 
 }
 
+
+
+
+
+const deneme = async ()=>{
+
+if(true){
+  
+  var key = CryptoJS.enc.Base64.parse('YWFhYmJiY2NjZGRkZWVlZQ==');     // Use Utf8-Encoder. 
+var iv  = CryptoJS.enc.Base64.parse('+ojdwfTS0CJ/YwIKVc5rCQ==');                     // Use Utf8-Encoder
+
+var encryptedCP = CryptoJS.AES.encrypt("deneme", key, { iv: iv });
+var decryptedWA = CryptoJS.AES.decrypt(encryptedCP, key, { iv: iv});
+
+var encryptedBase64 = encryptedCP.toString();                              // Short for: encryptedCP.ciphertext.toString(CryptoJS.enc.Base64);
+var decryptedUtf8 = decryptedWA.toString(CryptoJS.enc.Utf8);               // Avoid the Base64 detour.
+                                                                           // Alternatively: CryptoJS.enc.Utf8.stringify(decryptedWA);  
+console.log("Ciphertext (Base64)  : " + encryptedBase64)
+console.log("Decrypted data (Utf8): " + decryptedUtf8); 
+  
+}else{
+
+}
+ 
+
+
+
+}
+
   return (
     <>
       <Head>
@@ -547,6 +576,7 @@ const cleandata = ()=>{
                 <Button style={{marginRight:"2px", marginBottom: "2px"}} type="button" label="Ara" icon="pi pi-search" onClick={() => getdashboardwithdate()}  />
                     
                 <Button  style={{marginRight:"2px", marginBottom: "2px"}} type="button" label="Seçimi Temizle" icon="pi pi-times" onClick={() => cleandata()}  />
+                {/* <Button  style={{marginRight:"2px", marginBottom: "2px"}} type="button" label="Deneme" icon="pi pi-times" onClick={() => deneme()}  /> */}
 
                 </div>
 

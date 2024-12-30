@@ -95,7 +95,10 @@ const Services = () => {
 
     const [order, setorder] = useState(false);
 
+    const [optionvisible, setoptionvisible] = useState(false);
+    const [selectedoptionid, setselectedoptionid] = useState(false);
 
+    const [option, setoption] = useState(false);
 
     const clearFilter1 = () => {
         initFilters1();
@@ -1160,6 +1163,92 @@ var xx =  formatingDate(value);
     };
 
 
+    //Option Güncelleme
+
+    const DialogFooterOption = (
+        <>
+            <Button type="button" label="Vazgeç" icon="pi pi-times" onClick={() => setoptionvisible(false)} text />
+            <Button type="button" label="Güncelle" icon="pi pi-check" onClick={() => updateoptionorder()} text autoFocus />
+        </>
+    );
+
+    const updateoptiontemplate = (rowData) => {
+        return   <div>
+            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() =>{ setselectedoptionid(rowData.id); setoptionvisible(true)} } />
+            
+        </div>
+        
+        ;
+    };
+    const updateoptionorder = async () => {
+        setoptionvisible(false);
+        if(order == null || order == ""){
+            showalert(
+               {
+                    "succes" : false,
+                    "error" : "Lütfen Order Giriniz",
+                    
+                } 
+            );
+            return;
+        }
+       
+        setLoading(true);
+        var token = "";
+        var body = {};
+        body  = JSON.stringify({
+          id : selectedoptionid,
+          order: order
+                 
+              } )
+       
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+            const url = `${baseUrl}/question`;
+            BaseService.put(url,body,token).then((data) => {
+                
+                
+
+
+                    if(data.succes){
+                        setoption("");
+
+                        getservices();
+
+    
+                        setLoading(false);
+
+                        }else{
+                            showalert({
+                            "succes" : false,
+                            "error" : data.message
+                            
+                        });
+                        setLoading(false);
+
+    
+        
+                        }
+                
+                }) // Manipulate the data retrieved back, if we want to do something with it
+                .catch(message => { 
+                    setLoading(false);
+    
+                    
+                    showalert({
+                        "succes" : false,
+                        "error" : message.toString()
+                        
+                    });
+    
+                }) ; 
+            
+            });
+      }
+
+
+
     //Order Güncelleme
 
     const DialogFooterOrder = (
@@ -1202,7 +1291,7 @@ var xx =  formatingDate(value);
         user.getIdToken().then(function(idToken) {  
            token =  idToken;
         }).then(()=>{
-            const url = `${baseUrl}/question`;
+            const url = `${baseUrl}/option`;
             BaseService.put(url,body,token).then((data) => {
                 
                 
@@ -1243,10 +1332,6 @@ var xx =  formatingDate(value);
             
             });
       }
-
-
-
-   
 
    
     const rowExpansionTemplate = (rowData) => {
@@ -1325,6 +1410,9 @@ var xx =  formatingDate(value);
                     <Column field="id" header="Default Mu?"  style={{ minWidth: '8rem' }} body={optionDefaultTemplate}  />
 
                     <Column field="id" header="Seçeneği Default Değer Yap"  style={{ minWidth: '8rem' }} body={bedefaultTemplateQuestion}  />
+                    <Column field="order" header="Seçenek Sıralaması"  style={{ minWidth: '8rem' }}   />
+                    <Column field="id" header="Seçenek Sıralaması Güncelle"  style={{ minWidth: '8rem' }} body={updateordertemplate}  />
+
 
                     <Column field="id" header="Seçeneği Sil"  style={{ minWidth: '8rem' }} body={deleteTemplateoption}  />
                    
@@ -1548,6 +1636,15 @@ var xx =  formatingDate(value);
            
 <InputNumber  value={order} onValueChange={(e) => setorder(e.value)}  mode="decimal" showButtons></InputNumber>
 </Dialog>
+
+<Dialog  visible={optionvisible} onHide={() => setoptionvisible(false)} style={{ width: '350px' }}  modal footer={DialogFooterOption} >
+<div className="field col-12 md:col-6">
+
+<label >Sıralama Seç</label>
+</div>
+           
+<InputNumber  value={order} onValueChange={(e) => setorder(e.value)}  mode="decimal" showButtons></InputNumber>
+</Dialog>
                         <div className="col-12 mb-2 lg:col-2 lg:mb-0">
                             <h5>Sorular</h5>
                         </div>
@@ -1572,7 +1669,7 @@ var xx =  formatingDate(value);
 
                         <Column field="id" header="Cevaplamak Zorunlu Mu?"  body={optionalBodyTemplate} />
                         <Column field="id" header="Düzenleme Sorusu Mu?"  body={optionalBodyQuestionTemplate} />
-                        <Column field="id" header="Soru Sıralaması" body={updateordertemplate} />
+                        <Column field="id" header="Soru Sıralaması" body={updateoptiontemplate} />
 
                         <Column header="Oluşturulma Tarihi" field="createdAt" dataType="date"  body={dateBodyTemplate}  />
                         <Column field="id" header="Kullanımda"   body={switchTemplate}  />

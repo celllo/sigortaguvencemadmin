@@ -113,6 +113,14 @@ const Services = () => {
             </div>
         );
     };
+
+    const renderHeader2 = () => {
+        return (
+            <div className="flex justify-content-between">
+                <label> Son Versiyonun Teklifleri </label>
+            </div>
+        );
+    };
     const onTypeChange = (e) => {
         setdropdownItemRequestStatus(e);
         getrequests(0,globalFilterValue1,e.code);
@@ -566,11 +574,20 @@ var xx =  formatingDate(value);
                       
                  
                     
-                    {rowData.proposals == null ?
+                    {rowData.requestversions == null ?
+                <div className="col-12 mb-2 lg:col-4 lg:mb-0">
+                <></>
+            </div> : rowData.requestversions.length == 0 ?
+                <div className="col-12 mb-2 lg:col-4 lg:mb-0">
+                <></>
+            </div> : rowData.requestversions[0].proposals == null ?
                 <div className="col-12 mb-2 lg:col-4 lg:mb-0">
                 <></>
             </div> :
-                <DataTable value={rowData.proposals} responsiveLayout="scroll">
+                <DataTable 
+                header={header2}
+
+                value={rowData.requestversions[0].proposals} responsiveLayout="scroll">
                     <Column field="id" header="ID"  ></Column>
 
                     <Column field="price" header="Teklif Fiyatı"  ></Column>
@@ -594,6 +611,7 @@ var xx =  formatingDate(value);
     const header1 = renderHeader1();
 
    
+    const header2 = renderHeader2();
 
    
 
@@ -650,7 +668,7 @@ var xx =  formatingDate(value);
                     <Pagination disabled={loading} count={totalpage} page={page}   onClick={(e)=>changePage(e.target.innerText)}  style={{display: "block",  marginleft: "auto", marginright: "auto" }} />
                     <label></label>
             </div>
-
+x
                     <Dialog header="İstek Durumunu Güncelle" visible={requesttypedialog} onHide={() => setrequesttypedialog(false)} style={{ width: '350px' }} modal footer={DialogFooterRequestType}>
                         
 

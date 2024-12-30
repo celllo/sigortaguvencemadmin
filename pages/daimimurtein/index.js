@@ -25,7 +25,7 @@ import { Dialog } from 'primereact/dialog';
 
 
 
-const LoseVehicles = () => {
+const DaimiMurtein = () => {
     const { user } = useAuthContext();
     const router = useRouter();
 
@@ -37,13 +37,15 @@ const LoseVehicles = () => {
 
     const [request, setRequest] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [dropdownItemRequestStatus, setdropdownItemRequestStatus] = useState(  { name: 'Aktif', code: true },
+    const [dropdownItemRequestStatus, setdropdownItemRequestStatus] = useState(  { name: 'Değerlendirmede', code: "inreview" },
     );
 
 
     const dropdownItemsRequestTypes = [
-        { name: 'Aktif', code: true },
-        { name: 'Pasif', code: false },
+        { name: 'Değerlendirmede', code:  "inreview" },
+        { name: 'Eklendi', code: "done" },
+        { name: 'Reddedildi', code: "deletedbyadmin" },
+
         
 
 
@@ -106,7 +108,7 @@ const LoseVehicles = () => {
             <div className="flex justify-content-between">
                 <Button type="button" icon="pi pi-filter-slash" label="Temizle" outlined onClick={clearFilter1} />
                 <div className="mb-2">
-                          <label >İStek Durumu </label>
+                          <label >İstek Durumu </label>
                             <Dropdown id="actiontype" value={dropdownItemRequestStatus} onChange={(e) => {
                                 onTypeChange(e.value)}} options={dropdownItemsRequestTypes} optionLabel="name" placeholder="Seçiniz"></Dropdown>
                           </div>
@@ -125,7 +127,7 @@ const LoseVehicles = () => {
      user.getIdToken().then(function(idToken) {  
         token =  idToken;
      }).then(()=>{
-        const url = `${baseUrl}/vehiclelossrequest?identity=${encodeURIComponent(value)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}&is_checked=${encodeURIComponent(type)}`;
+        const url = `${baseUrl}/murtein?identity=${encodeURIComponent(value)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}&status=${encodeURIComponent(type)}`;
 
         BaseService.get(url,token).then((object) => {
         //console.log(object);
@@ -217,12 +219,19 @@ const LoseVehicles = () => {
        
         setLoading(true);
         var token = "";
-       
+        var body = JSON.stringify({
+            "status" : dropdownItemRequestType.code,
+            "id" : selectedrequestid,
+            "from_admin" : true
+
+            
+        } );
         user.getIdToken().then(function(idToken) {  
            token =  idToken;
         }).then(()=>{
-            const url = `${baseUrl}/vehiclelossrequest/activepassive?id=${encodeURIComponent(selectedrequestid)}&status=${encodeURIComponent(dropdownItemRequestType.code)}`;
-            BaseService.get(url,token).then((data) => {
+            //Burdayım
+            const url = `${baseUrl}/murtein`;
+            BaseService.put(url,body,token).then((data) => {
                 console.log(data);
                 console.log(url);
 
@@ -297,46 +306,6 @@ var xx =  formatingDate(value);
     };
 
 
-  
-   
- 
-
-   
-
-   
-
- 
-
-   
-
-  
-
-  
-
-   
-
-
-
-
-  
-
-    const statusTypeBodyTemplate = (rowData) => {
-        switch(rowData.is_checked) {
-            case true:
-            return <label  >Aktif</label> ;
-            
-        case  false:
-        return <label>Pasif</label> ;
-       
-        default:
-        return <label>Aktif</label> ;
-          }
-
-         
-        
-    };
-
-   
 
 
     const requestusernoBodyTemplate = (rowData) => {
@@ -347,6 +316,76 @@ var xx =  formatingDate(value);
         }
         return <label>{rowData.user.name == null ? "" :rowData.user.name } {rowData.user.surname == null ? "" :rowData.user.surname } TC:{rowData.user.identityNumber} Telefon:{rowData.user.telephone}</label>
         
+    };
+
+    const requestinsuranceBodyTemplate = (rowData) => {
+       
+        if(rowData.insurance == null){
+            return <label></label> ;
+
+        }
+        return <a href={`${fileUrl}${rowData.insurance.pdf}`} target="_blank">
+        <Button style={{margin: "5px"}} type="button" label="Görüntüle">
+
+</Button>  
+      </a>
+        
+    };
+
+    const bankBodyTemplate = (rowData) => {
+       
+        if(rowData.bank == null){
+            return <label></label> ;
+
+        }
+        return <label>{rowData.bank.name == null ? "" :rowData.bank.name } {rowData.bank.code == null ? "" :rowData.bank.code }</label>
+        
+    };
+
+    const branchBodyTemplate = (rowData) => {
+       
+        if(rowData.bankbranch == null){
+            return <label></label> ;
+
+        }
+        return <label>{rowData.bankbranch.name == null ? "" :rowData.bankbranch.name } {rowData.bankbranch.code == null ? "" :rowData.bankbranch.code } </label>
+        
+    };
+
+    const typeTemplate = (rowData) => {
+            
+        if(!rowData.status){
+            return <label></label> ;
+
+        }
+        switch(rowData.status) {
+            case "done":
+             return <label>Eklendi</label> ;
+            case  "deletedbyadmin":
+            return <label>Reddedildi</label> ;
+            case  "inreview":
+            return <label>Değerlendiriliyor</label> ;
+          
+            
+            
+            
+           
+            default:
+               
+            return <label></label> ;
+              // varsayılan kod bloğu
+          }
+        
+        
+    };
+
+    const updatetypetemplate = (rowData) => {
+        return   <div>
+            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() =>{setselectedrequestid(rowData.id); setrequesttypedialog(true)} } />
+            
+        </div>
+        
+        ;
     };
 
     
@@ -403,7 +442,7 @@ var xx =  formatingDate(value);
         <div className="grid">
             <div className="col-12">
                 <div className="card">
-                    <h5>Değer Kaybı İstekleri</h5>
+                    <h5>Daimi Mürtein İstekleri</h5>
                     <DataTable
                         value={request}
                         
@@ -422,13 +461,18 @@ var xx =  formatingDate(value);
                          {/* <Column field="id" header="ID"   /> */}
 
                         <Column field="id" header="İstek Sahibi Bilgiler"  body={requestusernoBodyTemplate} />
-                        <Column field="price" header="Aracın Değeri"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
-                        <Column field="tramer" header="Tramer"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
-                        <Column field="modelYear" header="Aracın Kilometresi"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
-                        <Column field="priceLoss" header="Değer Kaybı"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
-                        <Column field="id" header="İstek Durumu"  body={statusTypeBodyTemplate} />
-                        <Column field="id" header="İstek Durumunu Güncelle"  body={updaterequesttypetemplate} />
+                        <Column field="id" header="Sigortayı Görüntüle"  body={requestinsuranceBodyTemplate} />
 
+                        
+                        <Column field="amount" header="Kredi Miktarı"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
+                        <Column field="creditContractNo" header="Kredinin Kontrat No"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
+
+                        
+                        <Column field="id" header="Banka Bilgileri"  body={bankBodyTemplate} />
+                        <Column field="id" header="Şube Bilgileri"  body={branchBodyTemplate} />
+
+                        <Column field="id" header="İstek Durumu"  body={typeTemplate} />
+                        <Column field="id" header="İstek Durumu Güncelle"  body={updatetypetemplate} />
                         
 
 
@@ -483,7 +527,7 @@ var xx =  formatingDate(value);
     );
 };
 
-export default LoseVehicles;
+export default DaimiMurtein;
 
 
 

@@ -12,7 +12,7 @@ import { BaseService } from '@/service/BaseService';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { InputSwitch } from 'primereact/inputswitch';
-import { CircularProgress, Alert } from '@mui/material';
+import { CircularProgress, Alert,Pagination } from '@mui/material';
 import { Checkbox } from 'primereact/checkbox';
 import baseUrl  from '@/utils/baseUrl';
 import errorImageUrl from '@/utils/errorimageUrl';
@@ -45,7 +45,8 @@ const Request = () => {
     const [car, setCar] = useState();
     const [carid, setCarId] = useState();
 
-
+    const [page, setPage] = useState(1);
+    const [totalpage, setTotalpage] = useState(1);
 
     const [answers, setAnswers] = useState([]);
     const [brands, setBrands] = useState([]);
@@ -141,9 +142,18 @@ const Request = () => {
 
             setServiceuser(object.data.userCreatedFor);
             setCreateduser(object.data.createdUser);
+            console.log("xxx");
 
-            setProposals(object.data.proposals);
-            setAnswers(object.data.requestanswer.answers);
+            console.log(object.data.requestversions.length);
+
+            if(object.data.requestversions.length != 0){
+                console.log(object.data.requestversions);
+                setTotalpage(object.data.requestversions.length);
+                setProposals(object.data.requestversions[0].proposals);
+                setAnswers(object.data.requestversions[0].requestanswer.answers);
+            }
+
+            
 
 
              
@@ -177,6 +187,21 @@ const Request = () => {
     });
       
     
+       }
+
+       const changePage = (newPage) => {
+        if(parseInt(newPage) == 0){
+            return;
+
+        }
+        if(parseInt(newPage) > totalpage){
+            return;
+
+        }
+        setPage(parseInt(newPage));
+        setProposals(request.requestversions[parseInt(newPage)-1].proposals);
+         setAnswers(request.requestversions[parseInt(newPage)-1].requestanswer.answers);
+        
        }
        const getbrands = async () => {
        
@@ -1095,11 +1120,29 @@ var xx =  formatingDate(value);
                 <div className="col-12 mb-2 lg:col-4 lg:mb-0">
                 <></>
             </div> :
-                <DataTable value={rowData.options} responsiveLayout="scroll">
-                    <Column field="name" header="Ad" ></Column>
-                    <Column field="information" header="Açıklama" ></Column>
-                   
-                </DataTable>  }
+                <div>
+                    {
+                        rowData.options.length == 0 ? 
+                        <div/> : 
+                       <DataTable value={rowData.options} responsiveLayout="scroll">
+                        <Column field="name" header="Ad" ></Column>
+                        <Column field="information" header="Açıklama" ></Column>
+                       
+                    </DataTable>
+                    }
+              
+                {
+                     rowData.extraoptions.length == 0 ? 
+                     <div/> : 
+                    <DataTable value={rowData.extraoptions} responsiveLayout="scroll">
+                     <Column field="name" header="Ad" ></Column>
+                     <Column field="information" header="Açıklama" ></Column>
+                    
+                 </DataTable>
+                }
+                
+                
+                 </div> }
             </div>
         );
     };
@@ -1144,7 +1187,17 @@ var xx =  formatingDate(value);
 </div>
 </div>
 
-      
+<div className="grid">
+            <div className="col-12">
+                <div className="card">
+                <h5>İstek Versiyonları</h5>
+
+                <Pagination  disabled={loading} count={totalpage} page={page}   onClick={(e)=>changePage(e.target.innerText)}  style={{display: "block",  marginleft: "auto", marginright: "auto" }} />
+
+
+                </div>
+</div>
+</div>  
 
         <div className="grid">
         <div className="col-12">
@@ -1333,6 +1386,7 @@ var xx =  formatingDate(value);
             <div className="grid">
             <div className="col-12">
                 <div className="card">
+               
                     <h5>Teklifler</h5>
                     <DataTable
                         value={proposals}

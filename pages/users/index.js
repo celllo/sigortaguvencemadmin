@@ -48,6 +48,17 @@ const TableDemo = () => {
 
     ];
 
+    const [userroledialog, setuserroledialog] = useState(false);
+    const dropdownItemsUserRole = [
+        { name: 'Alım Yapabilen Kullanıcı', code: 'comissioner' },
+        { name: 'Kullanıcı', code: 'user' },
+       
+      
+
+    ];
+    const [dropdownItemUserRole, setDropdownItemUserRole] = useState(null);
+
+
     const [dropdownItemUserType, setDropdownItemUserType] = useState(null);
 
 
@@ -322,6 +333,83 @@ var xx =  formatingDate(value);
       }
 
 
+      const DialogFooter_UserRole = (
+        <>
+            <Button type="button" label="Vazgeç" icon="pi pi-times" onClick={() => setuserroledialog(false)} text />
+            <Button type="button" label="Güncelle" icon="pi pi-check" onClick={() => updateuserrole()} text autoFocus />
+        </>
+    );
+    const updateuserroletemplate = (rowData) => {
+        return   <div>
+            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() =>{console.log(rowData.id); setselecteduserid(rowData.id); setuserroledialog(true)} } />
+            
+        </div>
+        
+        ;
+    };
+
+    const updateuserrole = async () => {
+        setuserroledialog(false);
+        if(dropdownItemUserRole == null){
+            showalererror(
+               {
+                    "succes" : false,
+                    "error" : "Lütfen Kullanıcı Rölünü Seçiniz",
+                    
+                } 
+            );
+            return;
+        }
+        setLoading1(true);
+        var token = "";
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+        fetch(`${baseUrl}/users`, {
+            method: "PUT",
+             body: JSON.stringify({
+                "user_type" : dropdownItemUserRole.code,
+                "id" : selecteduserid,
+                "from_admin" : true
+
+                
+            } ),    
+        headers: { 'Cache-Control': 'no-cache','Content-Type': 'application/json', "Authorization": `Bearer ${token}` } })
+                .then((res) => res.json())
+                .then(data => {
+
+                    if(data.succes){
+                        setDropdownItemUserRole(null);
+
+    
+                        fetchUserData(page,globalFilterValue1);
+        
+                        }else{
+                        showalererror({
+                            "succes" : false,
+                            "error" : data.message
+                            
+                        });
+                        setLoading1(false);
+
+    
+        
+                        }
+                
+                }) // Manipulate the data retrieved back, if we want to do something with it
+                .catch(message => { 
+                    setLoading1(false);
+    
+                    
+                    showalererror({
+                        "succes" : false,
+                        "error" : message.toString()
+                        
+                    });
+    
+                }) ; });
+      }
+
     const initFilters1 = () => {
         setFilters1({
             global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -401,6 +489,33 @@ var xx =  formatingDate(value);
         
         
     };
+
+    const userRoleTemplate = (rowData) => {
+            
+        if(!rowData.user_type){
+            return <label></label> ;
+
+        }
+        switch(rowData.user_type) {
+            case "user":
+             return <label>Kullanıcı</label> ;
+            case  "comissioner":
+            return <label>Alım Yapabilen Kullanıcı</label> ;
+           
+          
+            
+            
+            
+           
+            default:
+               
+            return <label></label> ;
+              // varsayılan kod bloğu
+          }
+        
+        
+    };
+
 
 
     const genderType = (rowData) => {
@@ -546,7 +661,8 @@ var xx =  formatingDate(value);
                         <Column header="Oluşturulma Tarihi"  style={{ minWidth: '10rem' }} body={dateBodyTemplate}  />
                         <Column field="id" header="Durumu"  body={userTypeTemplate} />
                         <Column field="id" header="Durumu Güncelle"  body={updateusertypetemplate} />
-                        
+                        <Column field="id" header="Rolü"  body={userRoleTemplate} />
+                        <Column field="id" header="Rolü Güncelle"  body={updateuserroletemplate} />
                         <Column field="is_checked" header="Onaylı" dataType="boolean" bodyClassName="text-center" style={{ minWidth: '8rem' }} body={switchTemplate}  />
 
                     </DataTable>
@@ -567,6 +683,21 @@ var xx =  formatingDate(value);
                        <label >Kullanıcı Durumu </label>
                          <Dropdown id="situation" value={dropdownItemUserType} onChange={(e) => {
                              setDropdownItemUserType(e.value)}} options={dropdownItemsUserType} optionLabel="name" placeholder="Seçiniz"></Dropdown>
+                       </div>
+                     
+                       </div>
+
+                     </Dialog>
+            
+                     <Dialog header="Kullanıcı Rolünü Güncelle" visible={userroledialog} onHide={() => setuserroledialog(false)} style={{ width: '350px' }} modal footer={DialogFooter_UserRole}>
+                        
+
+                        <div className="grid formgrid">
+    
+                       <div className="col-12 mb-2  ">
+                       <label >Kullanıcı Rolü </label>
+                         <Dropdown id="situation" value={dropdownItemUserRole} onChange={(e) => {
+                             setDropdownItemUserRole(e.value)}} options={dropdownItemsUserRole} optionLabel="name" placeholder="Seçiniz"></Dropdown>
                        </div>
                      
                        </div>
