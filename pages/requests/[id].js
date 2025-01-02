@@ -51,6 +51,7 @@ const Request = () => {
     const [answers, setAnswers] = useState([]);
     const [brands, setBrands] = useState([]);
     const [proposals, setProposals] = useState([]);
+    const [versionId, setVersionId] = useState([]);
 
 
     const [textfieldtype, settextfieldtype] = useState([]);
@@ -151,6 +152,7 @@ const Request = () => {
                 setTotalpage(object.data.requestversions.length);
                 setProposals(object.data.requestversions[0].proposals);
                 setAnswers(object.data.requestversions[0].requestanswer.answers);
+                setVersionId(object.data.requestversions[0].id);
             }
 
             
@@ -200,7 +202,10 @@ const Request = () => {
         }
         setPage(parseInt(newPage));
         setProposals(request.requestversions[parseInt(newPage)-1].proposals);
-         setAnswers(request.requestversions[parseInt(newPage)-1].requestanswer.answers);
+        setAnswers(request.requestversions[parseInt(newPage)-1].requestanswer.answers);
+        setVersionId(request.requestversions[parseInt(newPage)-1].id);
+
+        
         
        }
        const getbrands = async () => {
@@ -1054,7 +1059,12 @@ var xx =  formatingDate(value);
 
 
 
-   
+    const versionIdBodyTemplate = (rowData) => {
+        if(versionId == null){
+            return <label  ></label> ;
+        }
+        return <label  >{versionId}</label> ;
+    };
     const carmodelBodyTemplate = (rowData) => {
         if(rowData.carmodel == null){
             return <label  ></label> ;
@@ -1094,6 +1104,15 @@ var xx =  formatingDate(value);
        </a>
        
     };
+    const createinsuranceTemplate = (rowData) => {
+        return <Button style={{margin: "5px"}} type="button" label="Sigorta Oluştur" onClick={() => {
+         
+
+
+
+          router.push(`/createinsurance/?proposalId=${rowData.id}&requestId=${rowData.requestId}&requestversionId=${rowData.requestversionId}&carId=${carid}`);
+                            }} />
+     };
 
    
     const rowExpansionTemplate = (rowData) => {
@@ -1190,7 +1209,10 @@ var xx =  formatingDate(value);
 <div className="grid">
             <div className="col-12">
                 <div className="card">
-                <h5>İstek Versiyonları</h5>
+                <h5>İstek Versiyonları
+                    
+                </h5>
+
 
                 <Pagination  disabled={loading} count={totalpage} page={page}   onClick={(e)=>changePage(e.target.innerText)}  style={{display: "block",  marginleft: "auto", marginright: "auto" }} />
 
@@ -1400,12 +1422,16 @@ var xx =  formatingDate(value);
                         emptyMessage="Teklif Bulunamadı."
                     >
                         <Column field="id" header="ID" style={{ minWidth: '12rem' }} />
+                        <Column field="id" header="Versiyon ID" style={{ minWidth: '12rem' }} body={versionIdBodyTemplate} />
+
+                        
                         <Column field="brandId" header="Sigorta Şirketi" style={{ minWidth: '12rem' }} body={brandTypeTemplate} />
 
                         <Column field="price" header="Fiyat" style={{ minWidth: '12rem' }} />
                         <Column field="point" header="Kazanılacak Puan" style={{ minWidth: '12rem' }} />
                         <Column field="id" header="Teklif Durumu" style={{ minWidth: '12rem' }} body={proposalTypeBodyTemplate} />
                         <Column field="id" header="Durumu Güncelle" style={{ minWidth: '12rem' }} body={updateproposaltypetemplate} />
+                        <Column field="id" header="Sigorta Oluştur"  style={{ minWidth: '8rem' }} body={createinsuranceTemplate}  />
 
                         
                         {/* <Column field="note" header="Bildirim Notu" style={{ minWidth: '12rem' }} /> */}
@@ -1415,6 +1441,8 @@ var xx =  formatingDate(value);
 
                         <Column field="is_checked" header="Aktif" dataType="boolean" bodyClassName="text-center" style={{ minWidth: '8rem' }} body={switchTemplate}  />
                         <Column field="id" header="Teklifi Sil"  style={{ minWidth: '8rem' }} body={deleteTemplateProposal}  />
+                        
+
 
                     </DataTable>
                     <Dialog header="Teklif Durumunu Güncelle" visible={proposaltypedialog} onHide={() => setproposaltypedialog(false)} style={{ width: '350px' }} modal footer={DialogFooterProposalType}>

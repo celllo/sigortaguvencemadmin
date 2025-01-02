@@ -45,9 +45,12 @@ const Services = () => {
     const dropdownItemsRequestTypes = [
         { name: 'Teklif Sürecinde', code: 'proposed' },
         { name: 'İncelemede', code: 'inreview' },
+        { name: 'Yenileme', code: 'renewal' },
+
         { name: 'Talep Geri Alındı', code: 'deleted' },
         { name: 'Süreçte Değil', code: 'cannotprocess' },
         { name: 'Reddedildi', code: 'denied' },
+
         { name: 'Kabul Edildi', code: 'accepted' },
         { name: 'Admin Tarafından Silindi', code: 'deletedbyadmin' }
 
@@ -372,6 +375,8 @@ var xx =  formatingDate(value);
         return <label  >Kabul Edildi</label> ;
         case "deletedbyadmin":
         return <label  >Admin Tarafından Silindi</label> ;
+        case "renewal":
+        return <label  >Yenileme</label> ;
         default:
         return <label>Teklif Sürecinde</label> ;
           }
@@ -435,6 +440,8 @@ var xx =  formatingDate(value);
         return <label  >Talep Geri Alındı</label> ;
         case "deletedbyadmin":
         return <label  >Admin Tarafından Silindi</label> ;
+        case "renewal":
+        return <label  >Yenileme</label> ;
         default:
         return <label>İncelemede</label> ;
           }
@@ -563,7 +570,15 @@ var xx =  formatingDate(value);
             });
       }
 
-   
+      const createinsuranceTemplate = (rowData) => {
+        return <Button style={{margin: "5px"}} type="button" label="Sigorta Oluştur" onClick={() => {
+         
+
+
+
+          router.push(`/createinsurance/?proposalId=${rowData.id}&requestId=${rowData.requestId}&requestversionId=${rowData.requestversionId}&carId=${null}`);
+                            }} />
+     };
      const rowExpansionTemplate = (rowData) => {
         
         return (
@@ -597,8 +612,10 @@ var xx =  formatingDate(value);
 
                     <Column field="note" header="Bildirim Notu" ></Column>
                     <Column header="Bitiş Tarihi" dataType="date" style={{ minWidth: '10rem' }} body={dateEndBodyTemplate} />
-
+                    
 <Column header="Oluşturulma Tarihi"  dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate} />
+{/* <Column field="id" header="Sigorta Oluştur" body={createinsuranceTemplate}  ></Column> */}
+
                    
                 </DataTable>  }
             </div>
@@ -639,6 +656,7 @@ var xx =  formatingDate(value);
                         expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)} rowExpansionTemplate={rowExpansionTemplate}
                     >
                                                 <Column expander style={{ width: '3em' }} />
+                        <Column field="id" header="ID" />
 
                         <Column field="id" header="İstek Sahibi"  body={forwhoTypeBodyTemplate} />
                         <Column field="id" header="İstek Sahibi Bilgiler"  body={requestusernoBodyTemplate} />

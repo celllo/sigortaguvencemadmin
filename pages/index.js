@@ -539,10 +539,10 @@ const deneme = async ()=>{
 if(true){
   
   var key = CryptoJS.enc.Base64.parse('YWFhYmJiY2NjZGRkZWVlZQ==');     // Use Utf8-Encoder. 
-var iv  = CryptoJS.enc.Base64.parse('+ojdwfTS0CJ/YwIKVc5rCQ==');                     // Use Utf8-Encoder
+var iv  = CryptoJS.enc.Base64.parse('YHZDW2UKY0N1wYUAxOxnFQ==');                     // Use Utf8-Encoder
 
 var encryptedCP = CryptoJS.AES.encrypt("deneme", key, { iv: iv });
-var decryptedWA = CryptoJS.AES.decrypt(encryptedCP, key, { iv: iv});
+var decryptedWA = CryptoJS.AES.decrypt("fkNQh2KPFBEanWCy80aOHg==", key, { iv: iv});
 
 var encryptedBase64 = encryptedCP.toString();                              // Short for: encryptedCP.ciphertext.toString(CryptoJS.enc.Base64);
 var decryptedUtf8 = decryptedWA.toString(CryptoJS.enc.Utf8);               // Avoid the Base64 detour.

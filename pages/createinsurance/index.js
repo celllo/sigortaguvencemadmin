@@ -28,6 +28,7 @@ import { InputNumber } from 'primereact/inputnumber';
 const CreateInsurance = () => {
     const { user } = useAuthContext();
     const router = useRouter();
+    const searchParams = new URLSearchParams(router.query);
 
 
     const [loading2, setLoading2] = useState(false);
@@ -63,6 +64,11 @@ const CreateInsurance = () => {
     const [amount, setAmount] = useState("");
     const [addinsurancesucces, setaddinsurancesucces] = useState(false);
 
+
+    const [carId, setCarId] = useState("");
+    const [requestId, setRequestId] = useState("");
+    const [requestVersionId, setrequestVersionId] = useState("");
+    const [proposalId, setproposalId] = useState("");
 
   
 
@@ -177,7 +183,7 @@ const CreateInsurance = () => {
         user.getIdToken().then(function(idToken) {  
            token =  idToken;
         }).then(()=>{
-           const url = `${baseUrl}/service`;
+           const url = `${baseUrl}/service?is_checked=true`;
    
            BaseService.get(url,token).then((object) => {
            //console.log(object);
@@ -233,17 +239,39 @@ const CreateInsurance = () => {
   
       
 
+  
     useEffect(() => {
-
-
-       
         
+       
+        if(router.isReady){
+            
+        
+          if(searchParams.get('carId') != null){
+            setCarId(searchParams.get('carId'));
+
+          }
+          if(searchParams.get('requestId') != null){
+            setRequestId(searchParams.get('requestId'));
+
+          }
+          if(searchParams.get('requestversionId') != null){
+            setrequestVersionId(searchParams.get('requestversionId'));
+
+          }
+          if(searchParams.get('proposalId') != null){
+            setproposalId(searchParams.get('proposalId'));
+
+          }
+         
+         
+
+         
         getservices();
 
-       
 
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
+            
+         }
+      }, [router.isReady]);
 
     
 
@@ -432,6 +460,10 @@ const createinsurance = async (pdf) => {
             "owneruserId" : dropdownItemUser.id,
             "createduserId" : dropdownItemUserPoint.id,
             "serviceId" : dropdownItemService.id,
+            "proposalId": proposalId,
+            "requestId": requestId,
+            "requestversionId": requestVersionId,
+"carId": carId,
             "pdf" : pdf[0],
            
            
@@ -446,8 +478,10 @@ const createinsurance = async (pdf) => {
             "owneruserId" : dropdownItemUser.id,
             "createduserId" : dropdownItemUser.id,
             "serviceId" : dropdownItemService.id,
-
-
+"proposalId": proposalId,
+            "requestId": requestId,
+            "requestversionId": requestVersionId,
+"carId": carId,
             "pdf" : pdf[0],
            
            
@@ -788,7 +822,34 @@ var xx =  formatingDate(value);
                         
                         </>}
                       
-
+                        <div className="field col-12 md:col-6">
+                            <label >Teklif ID</label>
+                            <InputText id="teklif" value={proposalId} type="text" onChange={(e) => setproposalId(e.value)}/>
+                            <small id="teklif-help">
+        Teklif ID Boş Bırakabilirsiniz. Yenilemede otomatik teklif oluşması için gereklidir.
+    </small>
+                        </div>
+                        <div className="field col-12 md:col-6">
+                            <label >İstek ID</label>
+                            <InputText id="request" value={requestId} type="text" onChange={(e) => setRequestId(e.value)}/>
+                            <small id="request-help">
+                            İstek ID Boş Bırakabilirsiniz. Yenilemede otomatik teklif oluşması için gereklidir.
+    </small>
+                        </div>
+                        <div className="field col-12 md:col-6">
+                            <label >İstek Versiyon ID</label>
+                            <InputText id="requestversiyon" value={requestVersionId} type="text" onChange={(e) => setrequestVersionId(e.value)}/>
+                            <small id="requestversiyon-help">
+                            İstek Versiyon ID Boş Bırakabilirsiniz. Yenilemede otomatik teklif oluşması için gereklidir.
+    </small>
+                        </div>
+                        <div className="field col-12 md:col-6">
+                            <label >Araba ID</label>
+                            <InputText id="carid" value={carId} type="text" onChange={(e) => setCarId(e.value)}/>
+                            <small id="carid-help">
+                            Araba ID Boş Bırakabilirsiniz. Yenilemede otomatik teklif oluşması için gereklidir.
+    </small>
+                        </div>
                      
                        
 
