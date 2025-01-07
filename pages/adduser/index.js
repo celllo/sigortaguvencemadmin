@@ -41,8 +41,8 @@ const AddUser = () => {
 
 
 
-    const [phone, setPhone] = useState('');
-    const [tcno, setTcNo] = useState('');
+    const [phone, setPhone] = useState(null);
+    const [tcno, setTcNo] = useState(null);
 
     
   
@@ -116,7 +116,9 @@ const AddUser = () => {
             );
             return;
         }
-        if(tcno.length != 11){
+     
+
+        if(tcno.toString().length != 11){
             showalert(
              {
                     "succes" : false,
@@ -137,7 +139,7 @@ const AddUser = () => {
             );
             return;
         }
-        if(phone.length != 10){
+        if(phone.toString().length != 10){
             showalert(
              {
                     "succes" : false,
@@ -178,8 +180,8 @@ const AddUser = () => {
         BaseService.post(url,body,token).then((object) => {
        //console.log(object.data);
          if(object.succes){
-            setTcNo("");
-            setPhone("");
+            setTcNo(null);
+            setPhone(null);
             setCalendarValue(null);
             setLoading(false);
 
