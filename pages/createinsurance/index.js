@@ -244,9 +244,9 @@ const CreateInsurance = () => {
         
        
         if(router.isReady){
-            
         
           if(searchParams.get('carId') != null){
+            
             setCarId(searchParams.get('carId'));
 
           }

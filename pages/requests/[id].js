@@ -1110,7 +1110,7 @@ var xx =  formatingDate(value);
 
 
 
-          router.push(`/createinsurance/?proposalId=${rowData.id}&requestId=${rowData.requestId}&requestversionId=${rowData.requestversionId}&carId=${carid}`);
+          router.push(`/createinsurance/?proposalId=${rowData.id ?? ""}&requestId=${rowData.requestId ?? ""}&requestversionId=${rowData.requestversionId ?? ""}&carId=${carid ?? ""}`);
                             }} />
      };
 
