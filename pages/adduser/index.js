@@ -116,6 +116,16 @@ const AddUser = () => {
             );
             return;
         }
+        if(tcno.length != 11){
+            showalert(
+             {
+                    "succes" : false,
+                    "error" : "Lütfen Tc No 11 Hane Olacak Şekilde Giriniz",
+                    
+                } 
+            );
+            return;
+        }
     
         if(phone == null || phone == ""){
             showalert(
@@ -344,13 +354,13 @@ var xx =  formatingDate(value);
 
                         <div className="field col-12 md:col-6">
                         <label htmlFor="chasisno">Kullanıcı Tc No</label>
-                            <InputText value={tcno} id="tcno" type="text"onChange={(e)=> setTcNo(e.target.value)} />
+                            <InputNumber value={tcno} id="tcno" type="text"onChange={(e)=> setTcNo(e.value)} useGrouping={false} />
                         </div>
                         <div className="field col-12 md:col-6"/>
 
                         <div className="field col-12 md:col-6">
                             <label htmlFor="motorno">Telefon  Numarası</label>
-                            <InputText value={phone} id="plateno" type="text"onChange={(e)=> setPhone(e.target.value)} />
+                            <InputNumber value={phone} id="plateno" type="text"onChange={(e)=> setPhone(e.value)} useGrouping={false} />
                         </div>
                         <div className="field col-12 md:col-6"/>
                         <div className="field col-12 md:col-6">
