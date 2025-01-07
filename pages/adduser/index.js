@@ -165,8 +165,8 @@ const AddUser = () => {
        
             body = JSON.stringify(
                 {
-                    "tel": phone,
-                    "identity": tcno,
+                    "tel": phone.toString(),
+                    "identity": tcno.toString(),
                     "birthDate": calendarValue.toISOString(),
                 }
             )
