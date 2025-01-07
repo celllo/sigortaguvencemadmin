@@ -96,6 +96,7 @@ const Request = () => {
 
     const [errorvisible, seterrorvisible] = useState(false);
     const [error, seterror] = useState(null);
+    const [successvisible, setsuccessvisible] = useState(false);
 
 
 
@@ -190,6 +191,49 @@ const Request = () => {
       
     
        }
+
+       const takeautoproposal = async () => {
+       
+        setLoading(true);
+        var token = "";
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+           const url = `${baseUrl}/request/renew?requestId=${encodeURIComponent(id)}&requestversionId=${encodeURIComponent(versionId)}&ray=true&allianz=true`;
+   
+           BaseService.get(url,token).then((object) => {
+          console.log(object.data);
+            if(object.succes){
+               
+   
+            
+                setLoading(false);
+                showsucces();
+       
+                }else{
+               showalert(object);
+               setLoading(false);
+       
+       
+                }
+       
+           
+        }).catch((message) => {
+           setLoading(false);
+   
+           showalert({
+               "succes" : false,
+               "error" : message.toString()
+               
+           });
+           // console.log(error);
+       
+       
+        }); 
+       });
+         
+       
+          }
 
        const changePage = (newPage) => {
         if(parseInt(newPage) == 0){
@@ -308,6 +352,16 @@ const Request = () => {
        setTimeout(() => {
         seterror(null);
         seterrorvisible(false);
+
+      } , 3000);
+    };
+    const showsucces = () => {
+
+
+        setsuccessvisible(true);
+
+       setTimeout(() => {
+        setsuccessvisible(false);
 
       } , 3000);
     };
@@ -1225,9 +1279,18 @@ var xx =  formatingDate(value);
         <div className="col-12">
                 <div className="card">
 <div className="grid formgrid">
-                        <div className="col-12 mb-2 lg:col-2 lg:mb-0">
+                        
+                        <div className="field col-12 md:col-12">
+                        <div className="flex justify-content-between">
+
                             <h5>Verilen Cevaplar</h5>
+                            <Button type="button" icon="pi pi-add" label="Otomatik Teklif Al"  onClick={takeautoproposal} />
+
+                            </div>
+
                         </div>
+               
+               
                 
                     </div>
                     <h1></h1>
@@ -1459,6 +1522,13 @@ var xx =  formatingDate(value);
                        </div>
 
                      </Dialog>
+
+                     <Dialog  visible={successvisible} onHide={() => setsuccessvisible(false)} style={{ width: '350px' }} modal >
+                        <div className="flex align-items-center justify-content-center">
+                                <i className="pi pi-thumbs-up mr-3" style={{ fontSize: '2rem' }} />
+                                <span>Otomatik Teklif İsteğiniz İşleme Alınmıştır</span>
+                            </div>
+                        </Dialog>
                 </div>
             </div>
             </div>

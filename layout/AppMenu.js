@@ -40,6 +40,7 @@ const AppMenu = () => {
             label: 'Özellikler',
             items: [
                 { label: 'Kullanıcılar', icon: 'pi pi-fw pi-users', to: '/users' },
+                { label: 'Kullanıcı Ekle', icon: 'pi pi-fw pi-user-plus', to: '/adduser' },
 
                 { label: 'Sigorta İstekleri', icon: 'pi pi-fw pi-inbox', to: '/requests' },
                 { label: 'Sigortalar', icon: 'pi pi-fw pi-map', to: '/insurances' },
