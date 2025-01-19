@@ -100,6 +100,18 @@ const Services = () => {
 
     const [option, setoption] = useState(false);
 
+
+    const [questioninfovisible, setquestioninfovisible] = useState(false);
+    const [questioninfotexttextvisible, setquestioninfotexttextvisible] = useState(false);
+    const [newinfotext, setnewinfotext] = useState("");
+    const [newinfotextbool, setnewinfotextbool] = useState("");
+    const [selectedquestionid, setselectedquestionid] = useState(false);
+    const questioninfoboolitems = [
+        { name: 'Evet', code: true },
+        { name: 'Hayır', code: false },
+
+    ];
+
     const clearFilter1 = () => {
         initFilters1();
     };
@@ -1248,6 +1260,9 @@ var xx =  formatingDate(value);
       }
 
 
+      
+
+
 
     //Order Güncelleme
 
@@ -1299,6 +1314,188 @@ var xx =  formatingDate(value);
 
                     if(data.succes){
                         setorder("");
+
+                        getservices();
+
+    
+                        setLoading(false);
+
+                        }else{
+                            showalert({
+                            "succes" : false,
+                            "error" : data.message
+                            
+                        });
+                        setLoading(false);
+
+    
+        
+                        }
+                
+                }) // Manipulate the data retrieved back, if we want to do something with it
+                .catch(message => { 
+                    setLoading(false);
+    
+                    
+                    showalert({
+                        "succes" : false,
+                        "error" : message.toString()
+                        
+                    });
+    
+                }) ; 
+            
+            });
+      }
+
+
+
+    const questionisinfoTemplate = (rowData) => {
+        
+
+        return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.showHint == true, 'text-pink-500 pi-times-circle': rowData.showHint != true })}></i>;
+    };
+
+
+    //Info Text Güncelleme
+
+    const DialogFooterInfoText = (
+        <>
+            <Button type="button" label="Vazgeç" icon="pi pi-times" onClick={() => setquestioninfotexttextvisible(false)} text />
+            <Button type="button" label="Güncelle" icon="pi pi-check" onClick={() => updatequestioninfo()} text autoFocus />
+        </>
+    );
+
+    const updateinfotexttemplate = (rowData) => {
+        return   <div>
+            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() =>{ setselectedquestionid(rowData.id); setquestioninfotexttextvisible(true)} } />
+            
+        </div>
+        
+        ;
+    };
+    const updatequestioninfo = async () => {
+        setquestioninfotexttextvisible(false);
+        if(newinfotext == null || newinfotext == ""){
+            showalert(
+               {
+                    "succes" : false,
+                    "error" : "Lütfen Yeni Açıklamayı Giriniz",
+                    
+                } 
+            );
+            return;
+        }
+       
+        setLoading(true);
+        var token = "";
+        var body = {};
+        body  = JSON.stringify({
+          id : selectedquestionid,
+          information: newinfotext
+                 
+              } )
+       
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+            const url = `${baseUrl}/question`;
+            BaseService.put(url,body,token).then((data) => {
+                
+                
+
+
+                    if(data.succes){
+                        setnewinfotext("");
+
+                        getservices();
+
+    
+                        setLoading(false);
+
+                        }else{
+                            showalert({
+                            "succes" : false,
+                            "error" : data.message
+                            
+                        });
+                        setLoading(false);
+
+    
+        
+                        }
+                
+                }) // Manipulate the data retrieved back, if we want to do something with it
+                .catch(message => { 
+                    setLoading(false);
+    
+                    
+                    showalert({
+                        "succes" : false,
+                        "error" : message.toString()
+                        
+                    });
+    
+                }) ; 
+            
+            });
+      }
+
+
+      
+
+
+
+    //Info Visibility Güncelleme
+
+    const DialogFooterInfoVisibility = (
+        <>
+            <Button type="button" label="Vazgeç" icon="pi pi-times" onClick={() => setquestioninfovisible(false)} text />
+            <Button type="button" label="Güncelle" icon="pi pi-check" onClick={() => updatequestioninfobool()} text autoFocus />
+        </>
+    );
+
+    const updateinfobooltemplate = (rowData) => {
+        return   <div>
+            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() =>{ setselectedquestionid(rowData.id); setquestioninfovisible(true)} } />
+            
+        </div>
+        
+        ;
+    };
+    const updatequestioninfobool = async () => {
+        setquestioninfovisible(false);
+        if(newinfotextbool == null ){
+            showalert(
+               {
+                    "succes" : false,
+                    "error" : "Lütfen Açıklama Görünürlüğü Seçiniz",
+                    
+                } 
+            );
+            return;
+        }
+       
+        setLoading(true);
+        var token = "";
+        var body = {};
+        body  = JSON.stringify({
+          id : selectedquestionid,
+          showHint: newinfotextbool.code
+                 
+              } )
+       
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+            const url = `${baseUrl}/question`;
+            BaseService.put(url,body,token).then((data) => {
+                
+                
+
+
+                    if(data.succes){
+                        setnewinfotextbool(null);
 
                         getservices();
 
@@ -1404,9 +1601,10 @@ var xx =  formatingDate(value);
                 <DataTable value={rowData.options} responsiveLayout="scroll">
                     <Column field="name" header="Ad" ></Column>
                     <Column field="information" header="Açıklama" ></Column>
-                    <Column field="information" header="Açıklama" ></Column>
                     <Column field="rayOtherCode" header="Ray Sigorta Kodu" ></Column>
                     <Column field="allianzOtherCode" header="Allianz Sigorta Kodu" ></Column>
+                   
+
                     <Column field="id" header="Default Mu?"  style={{ minWidth: '8rem' }} body={optionDefaultTemplate}  />
 
                     <Column field="id" header="Seçeneği Default Değer Yap"  style={{ minWidth: '8rem' }} body={bedefaultTemplateQuestion}  />
@@ -1645,6 +1843,24 @@ var xx =  formatingDate(value);
            
 <InputNumber  value={order} onValueChange={(e) => setorder(e.value)}  mode="decimal" showButtons></InputNumber>
 </Dialog>
+
+<Dialog  visible={questioninfotexttextvisible} onHide={() => setquestioninfotexttextvisible(false)} style={{ width: '350px' }}  modal footer={DialogFooterInfoText} >
+<div className="field col-12 md:col-6">
+
+<label >Açıklama Düzenle</label>
+</div>
+           
+<InputText value={newinfotext} id="newdesc" type="text"onChange={(e)=> setnewinfotext(e.target.value)} />
+</Dialog>
+
+<Dialog  visible={questioninfovisible} onHide={() => setquestioninfovisible(false)} style={{ width: '350px' }}  modal footer={DialogFooterInfoVisibility} >
+<div className="field col-12 md:col-6">
+
+<label >Açıklama Görünsün Mü?</label>
+</div>
+           
+<Dropdown id="type" value={newinfotextbool} onChange={(e) => setnewinfotextbool(e.value)} options={questioninfoboolitems} optionLabel="name" placeholder="Seçiniz"></Dropdown>
+</Dialog>
                         <div className="col-12 mb-2 lg:col-2 lg:mb-0">
                             <h5>Sorular</h5>
                         </div>
@@ -1662,6 +1878,9 @@ var xx =  formatingDate(value);
                         <Column field="question" header="        Soru       "  />
                         <Column field="subtitle" header="Soru Alt Başlığı"  />
                         <Column field="information" header="Soru Açıklaması"  />
+                        <Column field="id" header="Açıklamayı Düzenle"  style={{ minWidth: '8rem' }} body={updateinfotexttemplate}  />
+                    <Column field="id" header="Açıklama Görünürlüğü"  style={{ minWidth: '8rem' }} body={questionisinfoTemplate}  />
+                    <Column field="id" header="Açıklamayı Görünür Yap"  style={{ minWidth: '8rem' }} body={updateinfobooltemplate}  />
                         <Column field="id" header="Soru Tipi"  body={questionTypeBodyTemplate} />
                         <Column field="id" header="Soru Yazı İçeriği Tipi"  body={questiontypenameBodyTemplate} />
                         <Column field="hintText" header="İpucu"  />
