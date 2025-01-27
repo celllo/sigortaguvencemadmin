@@ -304,6 +304,29 @@ function uploadFile() {
         );
         return;
     }
+    if(file == null || file == "" ){
+        showalert(
+         {
+                "succes" : false,
+                "error" : "Lütfen Sigorta Poliçe PDF Ekleyiniz",
+                
+            } 
+        );
+        return;
+    }
+
+    if(file.length == 0 ){
+        showalert(
+         {
+                "succes" : false,
+                "error" : "Lütfen Sigorta Poliçe PDF Ekleyiniz",
+                
+            } 
+        );
+        return;
+    }
+
+    
     if((amount == null || amount == "") && amount !=0){
         showalert(
          {
@@ -460,10 +483,10 @@ const createinsurance = async (pdf) => {
             "owneruserId" : dropdownItemUser.id,
             "createduserId" : dropdownItemUserPoint.id,
             "serviceId" : dropdownItemService.id,
-            "proposalId": proposalId,
-            "requestId": requestId,
-            "requestversionId": requestVersionId,
-"carId": carId,
+            "proposalId": proposalId == "" ? null : proposalId,
+            "requestId": requestId == "" ? null : requestId,
+            "requestversionId": requestVersionId == "" ? null : requestVersionId,
+"carId": carId == "" ? null : carId,
             "pdf" : pdf[0],
            
            
