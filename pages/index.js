@@ -161,6 +161,10 @@ function getdashboard(){
               return "Talep Geri Alındı";
               case  "deletedbyadmin":
               return "Admin Tarafından Silindi" ;
+              case "renewal":
+                return "Yenileme" ;
+                case "cannotprocess":
+                return "Süreçte Değil" ;
             
               
               
@@ -393,6 +397,7 @@ function getdashboardwithdate(){
         labels: object.requestsx.map(datax => 
         
           {
+
             switch(datax.status) {
               case "inreview":
                return "İncelemede" ;
@@ -406,13 +411,17 @@ function getdashboardwithdate(){
               return "Talep Geri Alındı";
               case  "deletedbyadmin":
               return "Admin Tarafından Silindi" ;
+              case "renewal":
+                return "Yenileme" ;
+                case "cannotprocess":
+                return "Süreçte Değil" ;
             
+                        
               
               
               
              
               default:
-                 
               return "İncelemede";
                 // varsayılan kod bloğu
             }
