@@ -415,12 +415,7 @@ function getdashboardwithdate(){
                 return "Yenileme" ;
                 case "cannotprocess":
                 return "Süreçte Değil" ;
-            
-                        
-              
-              
-              
-             
+
               default:
               return "İncelemede";
                 // varsayılan kod bloğu

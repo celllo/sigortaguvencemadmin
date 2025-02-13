@@ -563,6 +563,7 @@ const addproposal= async () => {
             "brandId": dropdownItemBrand.id, 
             "proposedtoId": request.createdUser.id,
             "serviceId": request.serviceId,
+            "requestversionId" : versionId
             
             
                    
