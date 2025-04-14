@@ -48,6 +48,9 @@ const Services = () => {
     const [addoptiondialog, setaddoptiondialog] = useState(false);
 
     const [addselectedquestion, setaddselectedquestion] = useState(null);
+    const [updateselectedoption, setupdateselectedoption] = useState(null);
+    const [isoption, setisoption] = useState(false);
+
     const [deleteconfirm, setdeleteconfirm] = useState(false);
     const [deleteidoption, setdeleteidoption] = useState(null);
     const [file, setFile] = useState([]);
@@ -89,6 +92,8 @@ const Services = () => {
     const [optioninformation, setoptioninformation] = useState("");
     const [optionray, setoptionray] = useState(null);
     const [optionallianz, setoptionrayallian] = useState(null);
+    const [optionquick, setoptionquick] = useState(null);
+
 
     const [ordervisible, setordervisible] = useState(false);
     const [selectedorderid, setselectedorderid] = useState(false);
@@ -563,7 +568,7 @@ const Services = () => {
           
             return   <div>
                 <Button label="Default Cevap Yap"   onClick={() => { 
-               updateoption(rowData.id) 
+               updateoptiondefault(rowData.id) 
                 }} />
                            
             </div>
@@ -571,7 +576,7 @@ const Services = () => {
             ;
         };
 
-          const updateoption = async (id) => {
+          const updateoptiondefault = async (id) => {
             setLoading2(true);
     
     
@@ -627,6 +632,20 @@ const Services = () => {
                                 <span>Silmek İstediğinize Emin Misiniz?</span>
                             </div>
                         </Dialog>
+        </div>
+        
+        ;
+    };
+
+    const updateTemplateoption = (rowData) => {
+          
+        return   <div>
+            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() => { 
+            setupdateselectedoption(rowData.id);
+            setisoption(true);
+           setaddoptiondialog(true); 
+            }} />
+                        
         </div>
         
         ;
@@ -770,7 +789,7 @@ const Services = () => {
 const DialogFooterAddOption = (
     <>
         <Button type="button" label="Vazgeç" icon="pi pi-times" onClick={() => setaddoptiondialog(false)} text />
-        <Button type="button" label="Ekle" icon="pi pi-check" onClick={() => addoption()} text autoFocus />
+        <Button type="button" label= {isoption ? "Güncelle" : "Ekle"} icon="pi pi-check" onClick={() => isoption ? updateoption() : addoption()} text autoFocus />
     </>
 );
 const addoption = async () => {
@@ -815,7 +834,8 @@ const addoption = async () => {
            "servicequestionId": addselectedquestion.id, 
           "information": optioninformation,
           "allianzOtherCode" : optionallianz,
-          "rayOtherCode" : optionray
+          "rayOtherCode" : optionray,
+          "quickOtherCode" : optionquick
            
            
         } )
@@ -835,6 +855,9 @@ const addoption = async () => {
                     setoptioninformation("");
                     setoptionray("");
                     setoptionrayallian("");
+                    setoptionquick("");
+
+
 
                     setaddselectedquestion(null);
                    
@@ -871,6 +894,89 @@ const addoption = async () => {
      
   
       }
+
+      const updateoption = async () => {
+        var body = {"id" : updateselectedoption};
+    
+      
+           
+        if(optionname != null && optionname != ""){
+           body.name = optionname;
+        }
+        if(optioninformation != null && optioninformation != ""){
+          body.information = optioninformation;
+        }
+
+        if(optionallianz != null && optionallianz != ""){
+            body.allianzOtherCode = optionallianz;
+          }
+        if(optionray != null && optionray != ""){
+            body.rayOtherCode = optionray;
+          }
+          if(optionquick != null && optionquick != ""){
+            body.quickOtherCode = optionquick;
+          }
+       
+       
+        setaddoptiondialog(false)
+        setLoading2(true);
+        
+        body = JSON.stringify(body);
+     
+    
+        
+            var token = "";
+            user.getIdToken().then(function(idToken) {  
+               token =  idToken;
+            }).then(()=>{
+        const url = `${baseUrl}/option`;
+        BaseService.put(url,body,token).then((object) => {
+            // console.log(object);
+             if(object.succes){
+                        setoptionname("");
+                        setoptioninformation("");
+                        setoptionray("");
+                        setoptionrayallian("");
+                        setoptionquick("");
+    
+    
+    
+                        setaddselectedquestion(null);
+                       
+    
+                        
+                        getservices();
+                        setLoading2(false);
+                 
+        
+                
+        
+                 }else{
+                    showalert(object);
+                     setLoading(false);
+        
+        
+                 }
+        
+            
+         }).catch((message) => {
+            setLoading(false);
+    
+            showalert({
+                "succes" : false,
+                "error" : message.toString()
+                
+            });
+            // console.log(error);
+        
+        
+         });
+            
+            });
+         
+      
+          }
+      
 
 const addquestion = async () => {
     if(question == null || question == ""){
@@ -1546,10 +1652,11 @@ var xx =  formatingDate(value);
                         <div className="col-12 mb-2 lg:col-4 ">
                         <Button label="Ekle" icon="pi pi-plus" severity="success" onClick={() => {
                             setaddselectedquestion(rowData);
+                            setisoption(false);
                             setaddoptiondialog(true);
                         }} />
                         </div>
-                        <Dialog header="Cevap Seçeneği Ekle" visible={addoptiondialog} onHide={() => setaddoptiondialog(false)} style={{ width: '350px' }} modal footer={DialogFooterAddOption}>
+                        <Dialog header={isoption ?"Cevap Seçeneğini Güncelle": "Cevap Seçeneği Ekle" }  visible={addoptiondialog} onHide={() => setaddoptiondialog(false)} style={{ width: '350px' }} modal footer={DialogFooterAddOption}>
                         
 
                            <div className="grid formgrid">
@@ -1583,6 +1690,12 @@ var xx =  formatingDate(value);
                             
                         <InputText id="optioninfo" value={optionallianz} type="text" onChange={(e)=> setoptionrayallian(e.target.value)}/>
                         </div>
+
+                        <div  className="col-12 mb-2"> 
+                            <label >Quick Sigorta Kodu </label>
+                            
+                        <InputText id="optioninfo" value={optionquick} type="text" onChange={(e)=> setoptionquick(e.target.value)}/>
+                        </div>
                         
                        
                           </div>
@@ -1603,7 +1716,7 @@ var xx =  formatingDate(value);
                     <Column field="information" header="Açıklama" ></Column>
                     <Column field="rayOtherCode" header="Ray Sigorta Kodu" ></Column>
                     <Column field="allianzOtherCode" header="Allianz Sigorta Kodu" ></Column>
-                   
+                    <Column field="quickOtherCode" header="Quick Sigorta Kodu" ></Column>
 
                     <Column field="id" header="Default Mu?"  style={{ minWidth: '8rem' }} body={optionDefaultTemplate}  />
 
@@ -1612,7 +1725,9 @@ var xx =  formatingDate(value);
                     <Column field="id" header="Seçenek Sıralaması Güncelle"  style={{ minWidth: '8rem' }} body={updateordertemplate}  />
 
 
+                    <Column field="id" header="Seçeneği Güncelle"  style={{ minWidth: '8rem' }} body={updateTemplateoption}  />
                     <Column field="id" header="Seçeneği Sil"  style={{ minWidth: '8rem' }} body={deleteTemplateoption}  />
+
                    
                 </DataTable>  }
             </div>
