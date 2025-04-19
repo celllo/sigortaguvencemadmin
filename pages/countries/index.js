@@ -25,7 +25,7 @@ import { Dialog } from 'primereact/dialog';
 
 
 
-const LoseVehicles = () => {
+const Countries = () => {
     const { user } = useAuthContext();
     const router = useRouter();
 
@@ -35,7 +35,7 @@ const LoseVehicles = () => {
     const [globalFilterValue1, setGlobalFilterValue1] = useState('');
  
 
-    const [request, setRequest] = useState([]);
+    const [counrty, setCountry] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dropdownItemRequestStatus, setdropdownItemRequestStatus] = useState(  { name: 'Aktif', code: true },
     );
@@ -51,12 +51,20 @@ const LoseVehicles = () => {
 
     ];
 
+    const [name, setname] = useState("");
+    const [code, setcode] = useState("");
+    const [quickcode, setquickcode] = useState("");
+    const [scope, setscope] = useState("");
+    const [order, setorder] = useState("");
+
+
+
     const [dropdownItemRequestType, setDropdownItemRequestType] = useState(null);
 
    
 
-    const [requesttypedialog, setrequesttypedialog] = useState(false);
-    const [selectedrequestid, setselectedrequestid] = useState(null);
+    const [selectedcountry, setselectedcountry] = useState(null);
+    const [selectedcountrydialog, setselectedcountrydialog] = useState(false);
 
 
     const [errorvisible, seterrorvisible] = useState(false);
@@ -66,7 +74,7 @@ const LoseVehicles = () => {
 
     const clearFilter1 = () => {
         setGlobalFilterValue1("");
-        getrequests(0,"",dropdownItemRequestStatus.code);
+        getcountries(0,"");
         
      };
  
@@ -74,7 +82,7 @@ const LoseVehicles = () => {
          const value = e.target.value;
         
          setGlobalFilterValue1(value);
-         getrequests(page,value,dropdownItemRequestStatus.code);
+         getcountries(page,value);
      };
 
      const changePage = (newPage) => {
@@ -87,13 +95,13 @@ const LoseVehicles = () => {
 
         }
         setPage(parseInt(newPage));
-        getrequests(newPage,globalFilterValue1,dropdownItemRequestStatus.code);
+        getcountries(newPage,globalFilterValue1);
        }
 
        const onTypeChange = (e) => {
         setdropdownItemRequestStatus(e);
         setPage(0);
-        getrequests(0,globalFilterValue1,e.code);
+        getcountries(0,globalFilterValue1);
 
        
 
@@ -105,32 +113,28 @@ const LoseVehicles = () => {
         return (
             <div className="flex justify-content-between">
                 <Button type="button" icon="pi pi-filter-slash" label="Temizle" outlined onClick={clearFilter1} />
-                <div className="mb-2">
-                          <label >İstek Durumu </label>
-                            <Dropdown id="actiontype" value={dropdownItemRequestStatus} onChange={(e) => {
-                                onTypeChange(e.value)}} options={dropdownItemsRequestTypes} optionLabel="name" placeholder="Seçiniz"></Dropdown>
-                          </div>
+               
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
-                    <InputText value={globalFilterValue1} onChange={onGlobalFilterChange1} placeholder="Sigorta Sahibi TC" />
+                    <InputText value={globalFilterValue1} onChange={onGlobalFilterChange1} placeholder="Ülke Adı" />
                 </span>
             </div>
         );
     };
     
-    const getrequests = async (page,value,type) => {
+    const getcountries = async (page,value) => {
        
      setLoading(true);
      var token = "";
      user.getIdToken().then(function(idToken) {  
         token =  idToken;
      }).then(()=>{
-        const url = `${baseUrl}/vehiclelossrequest?identity=${encodeURIComponent(value)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}&is_checked=${encodeURIComponent(type)}`;
+        const url = `${baseUrl}/travelcountry?name=${encodeURIComponent(value)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}`;
 
         BaseService.get(url,token).then((object) => {
         //console.log(object);
          if(object.succes){
-            setRequest(object.data);
+            setCountry(object.data);
             setTotalpage(object.totalPages);
 
     
@@ -184,7 +188,7 @@ const LoseVehicles = () => {
 
 
        
-        getrequests(0,globalFilterValue1,dropdownItemRequestStatus.code);
+        getcountries(0,globalFilterValue1);
 
         
 
@@ -194,74 +198,97 @@ const LoseVehicles = () => {
 
 
  
-    const updaterequesttypetemplate = (rowData) => {
+    const updatecodetemplate = (rowData) => {
         return   <div>
-            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() =>{ setselectedrequestid(rowData.id); setrequesttypedialog(true)} } />
+            <Button label="Güncelle" icon="pi pi-inbox"  onClick={() =>{ setselectedcountry(rowData.id); setselectedcountrydialog(true)} } />
             
         </div>
         
         ;
     };
-    const updaterequesttype = async () => {
-        setrequesttypedialog(false);
-        if(dropdownItemRequestType == null){
-            showalert(
-               {
-                    "succes" : false,
-                    "error" : "Lütfen İstek Durumu Seçiniz",
-                    
-                } 
-            );
-            return;
-        }
-       
-        setLoading(true);
-        var token = "";
-       
-        user.getIdToken().then(function(idToken) {  
-           token =  idToken;
-        }).then(()=>{
-            const url = `${baseUrl}/vehiclelossrequest/activepassive?id=${encodeURIComponent(selectedrequestid)}&status=${encodeURIComponent(dropdownItemRequestType.code)}`;
-            BaseService.get(url,token).then((data) => {
-                console.log(data);
-                console.log(url);
-
-
-                    if(data.succes){
-                        setDropdownItemRequestType(null);
-
-                        getrequests(page,globalFilterValue1,dropdownItemRequestStatus.code);
-
-    
-                        setLoading(false);
-
-                        }else{
-                            showalert({
-                            "succes" : false,
-                            "error" : data.message
-                            
-                        });
-                        setLoading(false);
-
+    const updatecountry = async () => {
+        var body = {"id" : selectedcountry};
     
         
-                        }
-                
-                }) // Manipulate the data retrieved back, if we want to do something with it
-                .catch(message => { 
-                    setLoading(false);
+           
+        if(name != null && name != ""){
+           body.name = name;
+        }
+        if(code != null && code != ""){
+          body.code = code;
+        }
+
+        if(quickcode != null && quickcode != ""){
+            body.quickCode = quickcode;
+          }
+        if(scope != null && scope != ""){
+            body.scope = scope;
+          }
+          if(order != null && order != ""){
+            body.order = order;
+          }
+       
+       
+        setselectedcountrydialog(false)
+        setLoading(true);
+        
+        body = JSON.stringify(body);
+     
     
-                    
-                    showalert({
-                        "succes" : false,
-                        "error" : message.toString()
+        
+            var token = "";
+            user.getIdToken().then(function(idToken) {  
+               token =  idToken;
+            }).then(()=>{
+        const url = `${baseUrl}/travelcountry`;
+        BaseService.put(url,body,token).then((object) => {
+            // console.log(object);
+             if(object.succes){
+                setname("");
+                setcode("");
+                setcode("");
+                setquickcode("");
+                setscope("");
+                setorder("");
+
+    
                         
-                    });
     
-                }) ; 
+                       
+    
+                        
+                getcountries(page,globalFilterValue1);
+                setLoading(false);
+                 
+        
+                
+        
+                 }else{
+                    showalert(object);
+                     setLoading(false);
+        
+        
+                 }
+        
+            
+         }).catch((message) => {
+            setLoading(false);
+    
+            showalert({
+                "succes" : false,
+                "error" : message.toString()
+                
+            });
+            // console.log(error);
+        
+        
+         });
             
             });
-      }
+         
+      
+          }
+   
 
   
 
@@ -320,40 +347,17 @@ var xx =  formatingDate(value);
 
   
 
-    const statusTypeBodyTemplate = (rowData) => {
-        switch(rowData.is_checked) {
-            case true:
-            return <label  >Aktif</label> ;
-            
-        case  false:
-        return <label>Pasif</label> ;
-       
-        default:
-        return <label>Aktif</label> ;
-          }
-
-         
-        
-    };
+  
 
    
 
 
-    const requestusernoBodyTemplate = (rowData) => {
-       
-        if(rowData.user == null){
-            return <label></label> ;
-
-        }
-        return <label>{rowData.user.name == null ? "" :rowData.user.name } {rowData.user.surname == null ? "" :rowData.user.surname } TC:{rowData.user.identityNumber} Telefon:{rowData.user.telephone}</label>
-        
-    };
 
     
-     const DialogFooterRequestType = (
+     const DialogFooterUpdate = (
         <>
-            <Button type="button" label="Vazgeç" icon="pi pi-times" onClick={() => setrequesttypedialog(false)} text />
-            <Button type="button" label="Güncelle" icon="pi pi-check" onClick={() => updaterequesttype()} text autoFocus />
+            <Button type="button" label="Vazgeç" icon="pi pi-times" onClick={() => setselectedcountrydialog(false)} text />
+            <Button type="button" label="Güncelle" icon="pi pi-check" onClick={() => updatecountry()} text autoFocus />
         </>
     );
    
@@ -403,9 +407,9 @@ var xx =  formatingDate(value);
         <div className="grid">
             <div className="col-12">
                 <div className="card">
-                    <h5>Değer Kaybı İstekleri</h5>
+                    <h5>Ülkeler</h5>
                     <DataTable
-                        value={request}
+                        value={counrty}
                         
                         
                         rows={10}
@@ -421,13 +425,14 @@ var xx =  formatingDate(value);
                                                 {/* <Column expander style={{ width: '3em' }} /> */}
                          {/* <Column field="id" header="ID"   /> */}
 
-                        <Column field="id" header="İstek Sahibi Bilgiler"  body={requestusernoBodyTemplate} />
-                        <Column field="price" header="Aracın Değeri"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
-                        <Column field="tramer" header="Tramer"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
-                        <Column field="modelYear" header="Aracın Kilometresi"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
-                        <Column field="priceLoss" header="Değer Kaybı"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
-                        <Column field="id" header="İstek Durumu"  body={statusTypeBodyTemplate} />
-                        <Column field="id" header="İstek Durumunu Güncelle"  body={updaterequesttypetemplate} />
+                        <Column field="id" header="ID"  />
+                        <Column field="name" header="Ülke Adı"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
+                        <Column field="code" header="Kod"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
+                        <Column field="quickCode" header="Quick Kod"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
+                        <Column field="scope" header="Scope"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
+                        <Column field="order" header="Order"  bodyClassName="text-center" style={{ minWidth: '8rem' }} />
+
+                        <Column field="id" header="Kodları Güncelle"  body={updatecodetemplate} />
 
                         
 
@@ -449,20 +454,53 @@ var xx =  formatingDate(value);
                     <label></label>
             </div>
 
-                    <Dialog header="İstek Durumunu Güncelle" visible={requesttypedialog} onHide={() => setrequesttypedialog(false)} style={{ width: '350px' }} modal footer={DialogFooterRequestType}>
-                        
 
-                        <div className="grid formgrid">
-    
-                       <div className="col-12 mb-2  ">
-                       <label >İstek Durumu </label>
-                         <Dropdown id="situation" value={dropdownItemRequestType} onChange={(e) => {
-                             setDropdownItemRequestType(e.value)}} options={dropdownItemsRequestTypes} optionLabel="name" placeholder="Seçiniz"></Dropdown>
-                       </div>
+
+                      <Dialog header="Ülkeyi Güncelle"  visible={selectedcountrydialog} onHide={() => setselectedcountrydialog(false)} style={{ width: '350px' }} modal footer={DialogFooterUpdate}>
+                                             
                      
-                       </div>
-
-                     </Dialog>
+                                                <div className="grid formgrid">
+                                                <div className="col-12 mb-2">
+                                             
+                                                     <span>Lütfen Bilgileri Giriniz </span>
+                                                     
+                     
+                                                 </div>
+                                             
+                                             <div  className="col-12 mb-2"> 
+                                                 <label >Ülke Adı </label>
+                                                 
+                                             <InputText id="name" value={name} type="text" onChange={(e)=> setname(e.target.value)}/>
+                                             </div>
+                     
+                                             <div  className="col-12 mb-2"> 
+                                                 <label >Ülke Kodu</label>
+                                                 
+                                             <InputText id="code" value={code} type="text" onChange={(e)=> setcode(e.target.value)}/>
+                                             </div>
+                     
+                                             <div  className="col-12 mb-2"> 
+                                                 <label >Quick Ülke Kodu </label>
+                                                 
+                                             <InputText id="quickcode" value={quickcode} type="text" onChange={(e)=> setquickcode(e.target.value)}/>
+                                             </div>
+                     
+                                             <div  className="col-12 mb-2"> 
+                                                 <label >Scope </label>
+                                                 
+                                             <InputText id="scope" value={scope} type="text" onChange={(e)=> setscope(e.target.value)}/>
+                                             </div>
+                     
+                                             <div  className="col-12 mb-2"> 
+                                                 <label >Order </label>
+                                                 
+                                             <InputText id="order" value={order} type="text" onChange={(e)=> setorder(e.target.value)}/>
+                                             </div>
+                                             
+                                            
+                                               </div>
+                                             
+                                             </Dialog>
 
                      <Dialog  visible={errorvisible} onHide={() => seterrorvisible(false)} style={{ width: '350px' }} modal >
                         <div className="flex align-items-center justify-content-center">
@@ -471,6 +509,8 @@ var xx =  formatingDate(value);
                                 <label>{error == null ? "" :  error.error}</label>
                             </div>
                         </Dialog>
+
+
                 </div>
             </div>
             </div>
@@ -483,7 +523,7 @@ var xx =  formatingDate(value);
     );
 };
 
-export default LoseVehicles;
+export default Countries;
 
 
 

@@ -66,7 +66,7 @@ const AppMenu = () => {
                 { label: 'Puanlar', icon: 'pi pi-fw pi-star', to: '/points' },
                 { label: 'Değer Kaybı İstekleri', icon: 'pi pi-fw pi-car', to: '/losevehicles' },
                 { label: 'Daini Mürtehin İstekleri', icon: 'pi pi-fw pi-building', to: '/dainimurtehin' },
-
+                { label: 'Ülkeler', icon: 'pi pi-fw pi-map', to: '/countries' },
 
 
             
