@@ -1344,6 +1344,8 @@ var xx =  formatingDate(value);
                            
                                 
                                 <Column field="plate" header="Plaka"/>
+                             <Column field="ownerid" header="TC veya Vergi No"/>
+
                                 <Column field="serialno" header="Seri No" />
                                 <Column field="chasisno" header="Şase No"/>
                                 <Column field="motorno" header="Motor No"/>
