@@ -22,6 +22,7 @@ import { Dropzone, FileMosaic } from "@dropzone-ui/react";
 import { useAuthContext } from '@/context/AuthContext';
 import { useRouter } from 'next/router'
 import { Dialog } from 'primereact/dialog';
+import { JsonViewer } from '@textea/json-viewer'
 
 
 
@@ -295,7 +296,8 @@ var xx =  formatingDate(value);
             return <label></label> ;
 
         }
-        return <label>{JSON.stringify(rowData.meta)}</label>
+        return <JsonViewer value={rowData.meta} displayDataTypes={false}  displaySize={false}/>
+       // return <label>{JSON.stringify(rowData.meta)}</label>
         
     };
    

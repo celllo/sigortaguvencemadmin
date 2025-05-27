@@ -45,7 +45,8 @@ const Insurances = () => {
    
     const [insurancetypedialog, setinsurancetypedialog] = useState(false);
     const [selectedinsuranceid, setselectedinsuranceid] = useState(null);
-
+ const [brands, setBrands] = useState([]);
+    const [dropdownItemBrand, setdropdownItemBrand] = useState( {"id" : "" , "label" : `Tümü`});
     const [errorvisible, seterrorvisible] = useState(false);
     const [error, seterror] = useState(null);
     const [dropdownItemInsuranceType, setDropdownItemInsuranceType] = useState(null);
@@ -68,10 +69,10 @@ const Insurances = () => {
     const clearFilter1 = () => {
         setGlobalFilterValue1("");
         if(startcalendarValue == null || endcalendarValue == null){
-            getinsurances(0,"",dropdownItemInsuranceStatus.code,"","");
+            getinsurances(0,"",dropdownItemInsuranceStatus.code,"","",dropdownItemBrand.id);
 
         }else{
-            getinsurances(0,"",dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue);
+            getinsurances(0,"",dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue,dropdownItemBrand.id);
 
         }
         
@@ -82,17 +83,17 @@ const Insurances = () => {
         
          setGlobalFilterValue1(value);
          if(startcalendarValue == null || endcalendarValue == null){
-            getinsurances(page,value,dropdownItemInsuranceStatus.code,"","");
+            getinsurances(page,value,dropdownItemInsuranceStatus.code,"","",dropdownItemBrand.id);
 
         }else{
-            getinsurances(page,value,dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue);
+            getinsurances(page,value,dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue,dropdownItemBrand.id);
 
         }
      };
      const cleandata = ()=>{
         setEndCalendarValue(null);
         setStartCalendarValue(null);
-        getinsurances(page,value,dropdownItemInsuranceStatus.code,"","");
+        getinsurances(page,value,dropdownItemInsuranceStatus.code,"","",dropdownItemBrand.id);
        
       
       
@@ -109,10 +110,10 @@ const Insurances = () => {
         }
         setPage(parseInt(newPage));
         if(startcalendarValue == null || endcalendarValue == null){
-            getinsurances(newPage,globalFilterValue1,dropdownItemInsuranceStatus.code,"","");
+            getinsurances(newPage,globalFilterValue1,dropdownItemInsuranceStatus.code,"","",dropdownItemBrand.id);
 
         }else{
-            getinsurances(newPage,globalFilterValue1,dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue);
+            getinsurances(newPage,globalFilterValue1,dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue,dropdownItemBrand.id);
 
         }
        }
@@ -125,7 +126,11 @@ const Insurances = () => {
                           <label >Sigorta Durumu </label>
                             <Dropdown id="actiontype" value={dropdownItemInsuranceStatus} onChange={(e) => {
                                 onTypeChange(e.value)}} options={dropdownItemsInsuranceTypes} optionLabel="name" placeholder="Seçiniz"></Dropdown>
+                       <label  >Sigorta Şirketi </label>
+                         <Dropdown id="situation" value={dropdownItemBrand} onChange={(e) => {
+                             onBrandChange(e.value)}} options={brands} optionLabel="label" placeholder="Seçiniz"></Dropdown>
                           </div>
+                           
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue1} onChange={onGlobalFilterChange1} placeholder="Sigorta Sahibi TC" />
@@ -136,7 +141,7 @@ const Insurances = () => {
   
 
 
-       const getinsurances = async (page,value,status,start,end) => {
+       const getinsurances = async (page,value,status,start,end,brandId) => {
        
         setLoading(true);
         var token = "";
@@ -147,7 +152,7 @@ const Insurances = () => {
             var url = "";
             if(start == "" || end == ""){
 
-                 url = `${baseUrl}/insurance?identity=${encodeURIComponent(value)}&status=${encodeURIComponent(status)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}`;
+                 url = `${baseUrl}/insurance?identity=${encodeURIComponent(value)}&brandId=${encodeURIComponent(brandId)}&status=${encodeURIComponent(status)}&page=${encodeURIComponent(page-1)}&size=${encodeURIComponent(10)}`;
 
 
             }else{
@@ -200,6 +205,51 @@ const Insurances = () => {
        
           }
 
+           const getbrands = async () => {
+       
+        var token = "";
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+           const url = `${baseUrl}/brand`;
+   
+           BaseService.get(url,token).then((object) => {
+            if(object.succes){
+                let newdata = [
+                                        {"id" : "" , "label" : `Tümü`}
+
+                ];
+                object.data?.forEach((element) => {
+                    newdata.push({"id" : element.id , "label" : ` ${element.name == null ? "" : element.name} `})
+                })
+               setBrands(newdata);
+                
+       
+               
+       
+                }else{
+                   showalert(object);
+       
+       
+                }
+       
+           
+        }).catch((message) => {
+   
+           showalert({
+               "succes" : false,
+               "error" : message.toString()
+               
+           });
+           // console.log(error);
+       
+       
+        }); 
+       });
+         
+       
+          }
+
        const showalert = (neweeror) => {
         seterror(neweeror);
 
@@ -221,8 +271,8 @@ const Insurances = () => {
 
        
         
-        getinsurances(0,globalFilterValue1,dropdownItemInsuranceStatus.code,"","");
-        
+        getinsurances(0,globalFilterValue1,dropdownItemInsuranceStatus.code,"","",dropdownItemBrand.id);
+        getbrands();
 
        
 
@@ -231,10 +281,21 @@ const Insurances = () => {
     const onTypeChange = (e) => {
         setdropdownItemInsuranceStatus(e);
         if(startcalendarValue == null || endcalendarValue == null){
-            getinsurances(0,globalFilterValue1,e.code,"","");
+            getinsurances(0,globalFilterValue1,e.code,"","",dropdownItemBrand.id);
 
         }else{
-            getinsurances(0,globalFilterValue1,e.code,startcalendarValue,endcalendarValue);
+            getinsurances(0,globalFilterValue1,e.code,startcalendarValue,endcalendarValue,dropdownItemBrand.id);
+
+        }
+
+    };
+     const onBrandChange = (e) => {
+        setdropdownItemBrand(e);
+        if(startcalendarValue == null || endcalendarValue == null){
+            getinsurances(0,globalFilterValue1,dropdownItemInsuranceStatus.code,"","",e.id);
+
+        }else{
+            getinsurances(0,globalFilterValue1,dropdownItemInsuranceStatus.code,startcalendarValue,endcalendarValue,e.id);
 
         }
 
@@ -627,6 +688,7 @@ var xx =  formatingDate(value);
                          <Dropdown id="situation" value={dropdownItemInsuranceType} onChange={(e) => {
                              setDropdownItemInsuranceType(e.value)}} options={dropdownItemsInsuranceTypes} optionLabel="name" placeholder="Seçiniz"></Dropdown>
                        </div>
+                      
                      
                        </div>
 

@@ -38,6 +38,8 @@ const CreateInsurance = () => {
 
     const [loading, setLoading] = useState(true);
     const [loadingServices, setLoadingServices] = useState(true);
+    const [loadingBrands, setLoadingBrands] = useState(true);
+
 
     const [loadingpoint, setLoadingPoint] = useState(false);
 
@@ -51,6 +53,9 @@ const CreateInsurance = () => {
     const [leadingcheckboxpoint, setleadingcheckboxpoint] = useState(false);
     const [services, setServices] = useState([]);
     const [dropdownItemService, setdropdownItemService] = useState(null);
+
+     const [brands, setBrands] = useState([]);
+    const [dropdownItemBrand, setdropdownItemBrand] = useState(null);
 
     const [dropdownItemUser, setdropdownItemUser] = useState(null);
 
@@ -236,6 +241,56 @@ const CreateInsurance = () => {
       } , 3000);
     };
 
+
+    const getbrands = async () => {
+       
+        setLoadingBrands(true);
+        var token = "";
+        user.getIdToken().then(function(idToken) {  
+           token =  idToken;
+        }).then(()=>{
+           const url = `${baseUrl}/brand`;
+   
+           BaseService.get(url,token).then((object) => {
+           console.log(object);
+            if(object.succes){
+                let newdata = [];
+                object.data?.forEach((element) => {
+                    newdata.push({"id" : element.id , "label" : ` ${element.name == null ? "" : element.name} `})
+                })
+               setBrands(newdata);
+                
+       
+               
+               setLoadingBrands(false);
+       
+                }else{
+                   showalert(object);
+                   setLoadingBrands(false);
+       
+       
+                }
+       
+           
+        }).catch((message) => {
+            setLoadingBrands(false);
+   
+           showalert({
+               "succes" : false,
+               "error" : message.toString()
+               
+           });
+           // console.log(error);
+       
+       
+        }); 
+       });
+         
+       
+          }
+
+       
+
   
       
 
@@ -267,6 +322,7 @@ const CreateInsurance = () => {
 
          
         getservices();
+        getbrands();
 
 
             
@@ -352,6 +408,16 @@ function uploadFile() {
          {
                 "succes" : false,
                 "error" : "Lütfen Sigorta Türü Seçiniz",
+                
+            } 
+        );
+        return;
+    }
+     if(dropdownItemBrand == null){
+        showalert(
+         {
+                "succes" : false,
+                "error" : "Lütfen Sigorta Şirketi Seçiniz",
                 
             } 
         );
@@ -480,9 +546,12 @@ const createinsurance = async (pdf) => {
         body = JSON.stringify({
             "startDate" : timeStampStart,
             "endDate" : timeStampEnd,
+
             "owneruserId" : dropdownItemUser.id,
             "createduserId" : dropdownItemUserPoint.id,
             "serviceId" : dropdownItemService.id,
+            "brandId" : dropdownItemBrand.id,
+
             "proposalId": proposalId == "" ? null : proposalId,
             "requestId": requestId == "" ? null : requestId,
             "requestversionId": requestVersionId == "" ? null : requestVersionId,
@@ -810,6 +879,12 @@ var xx =  formatingDate(value);
                         { loadingServices ? <CircularProgress /> : 
 
                             <Dropdown    id="user" value={dropdownItemService} onChange={(e) => setdropdownItemService(e.value) } options={services}   optionLabel="label" placeholder="Sigorta Türü Seçiniz"></Dropdown>}
+                        </div>
+                        <div className="field col-12 md:col-12">
+                             <label >Sigorta Şirketi</label> 
+                        { loadingBrands ? <CircularProgress /> : 
+
+                            <Dropdown    id="user" value={dropdownItemBrand} onChange={(e) => setdropdownItemBrand(e.value) } options={brands}   optionLabel="label" placeholder="Sigorta Şirketi Seçiniz"></Dropdown>}
                         </div>
                        <div className="col-12 md:col-12">
                             <div className="field-checkbox">
