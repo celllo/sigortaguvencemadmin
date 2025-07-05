@@ -869,7 +869,7 @@ var xx =  formatingDate(value);
 
                        <div className="field col-12 md:col-6">
                        <label>Sigorta Bitiş Tarihi</label>
-                       <Calendar showIcon showButtonBar dateFormat="dd-mm-yy" value={endcalendarValue} onChange={(e) => {
+                       <Calendar showIcon showButtonBar dateFormat="dd/mm/yy" value={endcalendarValue} onChange={(e) => {
                         setEndCalendarValue(e.value);
                         
                         }}></Calendar>

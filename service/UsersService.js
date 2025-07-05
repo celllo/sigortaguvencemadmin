@@ -2,13 +2,13 @@
 import baseUrl  from '@/utils/baseUrl';
 
 export const UsersService = {
-    getusers(page,size,name,order,token) {
+    getusers(page,size,tc,name,order,token) {
         if(name == null){
             name = "";
         }
         var url = "";
         if(order == null){
-            url = `${baseUrl}/users?identityNumber=${encodeURIComponent(name)}&page=${encodeURIComponent(page)}&size=${encodeURIComponent(size)}`;
+            url = `${baseUrl}/users?identityNumber=${encodeURIComponent(tc)}&name=${encodeURIComponent(name)}&page=${encodeURIComponent(page)}&size=${encodeURIComponent(size)}`;
         }else{
             
 

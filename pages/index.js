@@ -598,7 +598,7 @@ console.log("Decrypted data (Utf8): " + decryptedUtf8);
                        </div>
                        <div className="col-6 mb-2  ">
                        <span>Son Tarih </span>
-                       <Calendar showIcon showButtonBar dateFormat="dd-mm-yy" value={endcalendarValue} onChange={(e) => {
+                       <Calendar showIcon showButtonBar dateFormat="dd/mm/yy" value={endcalendarValue} onChange={(e) => {
                         setEndCalendarValue(e.value);
                         console.log(e);
                         

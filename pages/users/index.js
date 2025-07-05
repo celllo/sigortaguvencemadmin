@@ -30,6 +30,8 @@ const TableDemo = () => {
     const [loading1, setLoading1] = useState(true);
   
     const [globalFilterValue1, setGlobalFilterValue1] = useState('');
+    const [globalFilterName, setGlobalFilterName] = useState('');
+
    
 
     const [users, setUsers] = useState([]);
@@ -75,7 +77,7 @@ const TableDemo = () => {
     ];
     const onTypeChange = (e) => {
         setdropdownItemOrderStatus(e);
-        fetchUserData(page,globalFilterValue1,e);
+        fetchUserData(page,globalFilterValue1,globalFilterName,e);
 
 
        
@@ -84,8 +86,10 @@ const TableDemo = () => {
 
     const clearFilter1 = () => {
        setGlobalFilterValue1("");
+       setGlobalFilterName("");
+
        setdropdownItemOrderStatus(null);
-       fetchUserData(0,"","xx")
+       fetchUserData(0,"",'',"xx")
        //getusers();
        
     };
@@ -94,7 +98,13 @@ const TableDemo = () => {
         const value = e.target.value;
        
         setGlobalFilterValue1(value);
-        fetchUserData(page,value);
+        fetchUserData(page,value,globalFilterName);
+    };
+     const onGlobalFilterChange2 = (e) => {
+        const value = e.target.value;
+       
+        setGlobalFilterName(value);
+        fetchUserData(page,globalFilterValue1,value);
     };
 
     const renderHeader1 = () => {
@@ -106,14 +116,21 @@ const TableDemo = () => {
                             <Dropdown id="order" value={dropdownItemOrderStatus} onChange={(e) => {
                                 onTypeChange(e.value)}} options={dropdownItemsOrder} optionLabel="name" placeholder="Seçiniz"></Dropdown>
                           </div>
-                <span className="p-input-icon-left">
-                    <i className="pi pi-search" />
+            <div className="mb-2">
+                         <span className="p-input-icon-left">
+                    <i className="pi pi-user" />
+                    <InputText value={globalFilterName} onChange={onGlobalFilterChange2} placeholder="Kullanıcı Adı" />
+                </span>
+                <span className="p-input-icon-left" style={{ marginLeft: '1rem' }} >
+                    <i className="pi pi-user" />
                     <InputText value={globalFilterValue1} onChange={onGlobalFilterChange1} placeholder="TC Kimlik Numarası" />
                 </span>
+                          </div>
+                
             </div>
         );
     };
-    const fetchUserData = async (page,name,type) => {
+    const fetchUserData = async (page,tc,name,type) => {
     var typedata;
     if(type == null){
         typedata = dropdownItemOrderStatus;
@@ -132,7 +149,7 @@ const TableDemo = () => {
        token =  idToken;
        console.log(token);
     }).then(()=>{
-    UsersService.getusers((page-1),10,name,typedata,token).then((object) => {
+    UsersService.getusers((page-1),10,tc,name,typedata,token).then((object) => {
         // console.log(object);
          if(object.succes){
             setTotalpage(object.totalPages);
@@ -210,7 +227,7 @@ const TableDemo = () => {
           }
       const changePage = (newPage) => {
         setPage(parseInt(newPage));
-        fetchUserData(newPage,globalFilterValue1);
+        fetchUserData(newPage,globalFilterValue1,globalFilterName);
        }
 
        const showalererror = (neweeror) => {
@@ -231,7 +248,7 @@ const TableDemo = () => {
 
         //getusers();
         
-        fetchUserData(0,"");
+        fetchUserData(0,"",'');
         
 
        
@@ -304,7 +321,7 @@ var xx =  formatingDate(value);
                         setDropdownItemUserType(null);
 
     
-                        fetchUserData(page,globalFilterValue1);
+                        fetchUserData(page,globalFilterValue1,globalFilterName);
         
                         }else{
                         showalererror({
@@ -382,7 +399,7 @@ var xx =  formatingDate(value);
                         setDropdownItemUserRole(null);
 
     
-                        fetchUserData(page,globalFilterValue1);
+                        fetchUserData(page,globalFilterValue1,globalFilterName);
         
                         }else{
                         showalererror({
@@ -592,7 +609,7 @@ var xx =  formatingDate(value);
                 return response.json();
               }) .then(data => {
                 if(data.succes){
-                fetchUserData(page,globalFilterValue1);
+                fetchUserData(page,globalFilterValue1,globalFilterName);
 
                 }else{
                 showalererror(data);
